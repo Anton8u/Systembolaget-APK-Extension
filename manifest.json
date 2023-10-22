@@ -10,6 +10,12 @@
   "host_permissions": [
     "https://www.systembolaget.se/*"
   ],
+  "content_scripts": [
+    {
+      "matches": ["https://www.systembolaget.se/*"],
+      "js": ["content.js"]
+    }
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
