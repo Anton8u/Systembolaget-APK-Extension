@@ -4,18 +4,11 @@
   "version": "1.0",
   "description": "Adds APK unit to Systembolaget",
   "permissions": ["storage", "activeTab", "webNavigation", "tabs", "scripting"],
-  "background": {
-    "service_worker": "background.js"
-  },
+
   "host_permissions": [
     "https://www.systembolaget.se/*"
   ],
-  "content_scripts": [
-    {
-      "matches": ["https://www.systembolaget.se/*"],
-      "js": ["content.js"]
-    }
-  ],
+
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
