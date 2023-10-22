@@ -1,14 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "Ticket Checker",
+  "name": "Systembolaget APK-extension",
   "version": "1.0",
-  "description": "Checks ticket availability for IFK Goteborg.",
+  "description": "Adds APK unit to Systembolaget",
   "permissions": ["storage", "activeTab", "webNavigation", "tabs", "scripting"],
   "background": {
     "service_worker": "background.js"
   },
   "host_permissions": [
-    "https://ifkgoteborg.ebiljett.nu/*"
+    "https://www.systembolaget.se/*"
   ],
   "action": {
     "default_popup": "popup.html",
