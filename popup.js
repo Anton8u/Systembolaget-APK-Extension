@@ -570,7 +570,7 @@ const specialCasesIdToApk = {
   '11937': 1,
 }
 
-function storePage(reorder, specialCasesIdToApk) {
+function searchPage(reorder, specialCasesIdToApk) {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     const tab = tabs[0];
     chrome.scripting.executeScript({
@@ -639,7 +639,7 @@ function storePage(reorder, specialCasesIdToApk) {
   });
 }
 
-//storePage(0);
+//searchPage(0);
 
 function productPage(specialCasesIdToApk) {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -685,6 +685,47 @@ function productPage(specialCasesIdToApk) {
 }
 
 
+function getPageType(url) {
+  try {
+    if (url.indexOf("https://www.systembolaget.se/sortiment") !== -1) {
+      return "searchPage";
+    }
+    if (url.indexOf("https://www.systembolaget.se/produkt") !== -1) {
+      return "productPage";
+    }
+  } catch {
+    return "unknown";
+  }
+}
+
+chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+  const currentURL = tabs[0].url;
+  const type = getPageType(currentURL);
+
+  if (type === "searchPage") {
+    searchPage(0, specialCasesIdToApk);
+  }
+  if (type === "productPage") {
+    productPage(specialCasesIdToApk);
+  }
+  if (type === "unknown") {
+    console.log("Systembolaget-APK-Extension Error: Unknown webpage (not on product or search page of systembolaget)");
+  }
+});
+
 document.getElementById('reorderButton').addEventListener('click', () => {
-  productPage(specialCasesIdToApk);
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    const currentURL = tabs[0].url;
+    const type = getPageType(currentURL);
+
+    if (type === "searchPage") {
+      searchPage(1, specialCasesIdToApk);
+    }
+    if (type === "productPage") {
+      console.log("Sorting doesnt do anything on product page!");
+    }
+    if (type === "unknown") {
+      console.log("Systembolaget-APK-Extension Error: Unknown webpage (not on product or search page of systembolaget)");
+    }
+  });
 });
