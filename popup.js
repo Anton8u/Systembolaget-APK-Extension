@@ -1,14 +1,10 @@
-
-
-
-
-document.getElementById('reorderButton').addEventListener('click', () => {
+function func(reorder){
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     const tab = tabs[0];
     // Send a message to the content script
     chrome.scripting.executeScript({
       target: { tabId: tab.id },
-      function: () => {
+      function: (reorder) => {
         const specialCasesIdToApk = {
           '8368': 100,
           '52361': 98,
@@ -581,12 +577,21 @@ document.getElementById('reorderButton').addEventListener('click', () => {
           
           return apk;
         }
-
-        productDivs.sort((a, b) => {
+        
+        function sortByApk(a, b) {
           const apkA = calcApk(a);
           const apkB = calcApk(b);
           return apkB - apkA;
-        });
+        }
+        
+        function sortByDefault(a, b) {
+          return 0; // No sorting, maintain the original order
+        }
+        
+        // Conditionally select the sorting function based on reorder value
+        const sortingFunction = reorder === 1 ? sortByApk : sortByDefault;
+
+        productDivs.sort(sortingFunction);
         
 
         productDivs.forEach((productDiv) => {
@@ -594,17 +599,24 @@ document.getElementById('reorderButton').addEventListener('click', () => {
           const priceElement = productDiv.querySelectorAll('.css-3yr2fs.e1hb4h4s0');
           const price = parseFloat(priceElement[0].textContent.replace(":", "."));
           
-          productDiv.querySelectorAll('.css-3yr2fs.e1hb4h4s0')[0].textContent = price + "kr, APK:" + apk
+          productDiv.querySelectorAll('.css-3yr2fs.e1hb4h4s0')[0].textContent = price + "kr, APK:" + apk;
           container.appendChild(productDiv);
         });
 
         // Resolve the promise when the task is complete
         return Promise.resolve("Divs reordered successfully");
       },
+      args: [reorder]
     }).then((result) => {
       console.log(result); // Display a success message
-    }).catch((error) => {
+    }).catch(() => {
       console.log("Systembolaget-APK-Extension Error"); // Handle any errors
     });
   });
+}
+
+func(0);
+
+document.getElementById('reorderButton').addEventListener('click', () => {
+  func(1);
 });
