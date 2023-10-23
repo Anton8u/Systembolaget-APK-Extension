@@ -9,7 +9,7 @@ document.getElementById('reorderButton').addEventListener('click', () => {
     chrome.scripting.executeScript({
       target: { tabId: tab.id },
       function: () => {
-        const specialAPKcases = {
+        const specialCasesIdToApk = {
           '8368': 100,
           '52361': 98,
           '53122': 98,
@@ -562,6 +562,14 @@ document.getElementById('reorderButton').addEventListener('click', () => {
         // Sort the productDivs by APK
 
         function calcApk(productDiv){
+          const productShortNrText = productDiv.querySelector('.css-1rzqs9q.e3wog7r0');
+          const productShortNr = productShortNrText.textContent.replace("Nr ", "");
+
+          if (productShortNr in specialCasesIdToApk) {
+            const apk = specialCasesIdToApk[productShortNr];
+            return apk;
+          }
+
           const volumeElement = productDiv.querySelectorAll('.css-mzek0q.e1yhfiwj0');
           const mlVolume = parseFloat(volumeElement[1].textContent.trim());
           const alcoholVolume = parseFloat(volumeElement[2].textContent.replace(",", "."));
@@ -579,6 +587,7 @@ document.getElementById('reorderButton').addEventListener('click', () => {
           const apkB = calcApk(b);
           return apkB - apkA;
         });
+        
 
         productDivs.forEach((productDiv) => {
           const apk = calcApk(productDiv);
