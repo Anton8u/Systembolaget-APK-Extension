@@ -1,7 +1,6 @@
-function func(reorder){
+function func(reorder) {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     const tab = tabs[0];
-    // Send a message to the content script
     chrome.scripting.executeScript({
       target: { tabId: tab.id },
       function: (reorder) => {
@@ -555,9 +554,9 @@ function func(reorder){
 
         const container = document.querySelector('.css-176nwz9.e18roaja0');
         const productDivs = Array.from(container.querySelectorAll('.css-1lc3wed.enuzix00'));
-        // Sort the productDivs by APK
 
-        function calcApk(productDiv){
+
+        function calcApk(productDiv) {
           const productShortNrText = productDiv.querySelector('.css-1rzqs9q.e3wog7r0');
           const productShortNr = productShortNrText.textContent.replace("Nr ", "");
 
@@ -569,36 +568,36 @@ function func(reorder){
           const volumeElement = productDiv.querySelectorAll('.css-mzek0q.e1yhfiwj0');
           const mlVolume = parseFloat(volumeElement[1].textContent.trim());
           const alcoholVolume = parseFloat(volumeElement[2].textContent.replace(",", "."));
-        
+
           const priceElement = productDiv.querySelectorAll('.css-3yr2fs.e1hb4h4s0');
           const price = parseFloat(priceElement[0].textContent.replace(":", "."));
-        
+
           const apk = parseInt(Math.round(mlVolume * alcoholVolume / price));
-          
+
           return apk;
         }
-        
+
         function sortByApk(a, b) {
           const apkA = calcApk(a);
           const apkB = calcApk(b);
           return apkB - apkA;
         }
-        
+
         function sortByDefault(a, b) {
           return 0; // No sorting, maintain the original order
         }
-        
+
         // Conditionally select the sorting function based on reorder value
         const sortingFunction = reorder === 1 ? sortByApk : sortByDefault;
 
         productDivs.sort(sortingFunction);
-        
+
 
         productDivs.forEach((productDiv) => {
           const apk = calcApk(productDiv);
           const priceElement = productDiv.querySelectorAll('.css-3yr2fs.e1hb4h4s0');
           const price = parseFloat(priceElement[0].textContent.replace(":", "."));
-          
+
           productDiv.querySelectorAll('.css-3yr2fs.e1hb4h4s0')[0].textContent = price + "kr, APK:" + apk;
           container.appendChild(productDiv);
         });

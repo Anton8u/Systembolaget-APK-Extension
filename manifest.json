@@ -1,12 +1,12 @@
 {
   "manifest_version": 3,
-  "name": "Systembolaget APK-extension",
+  "name": "Systembolaget APK",
   "version": "1.0",
-  "description": "Adds APK unit to Systembolaget",
-  "permissions": ["storage", "activeTab", "webNavigation", "tabs", "scripting"],
+  "description": "Shows the APK of products and can sorts by it.",
+  "permissions": ["scripting"], 
 
   "host_permissions": [
-    "https://www.systembolaget.se/*"
+    "https://www.systembolaget.se/sortiment*"
   ],
 
   "action": {
