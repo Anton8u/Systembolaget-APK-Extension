@@ -608,9 +608,8 @@ function func(reorder){
       },
       args: [reorder]
     }).then((result) => {
-      console.log(result); // Display a success message
     }).catch(() => {
-      console.log("Systembolaget-APK-Extension Error"); // Handle any errors
+      console.log("Systembolaget-APK-Extension Error");
     });
   });
 }
