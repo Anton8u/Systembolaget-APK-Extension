@@ -4,6 +4,9 @@
   "version": "1.0",
   "description": "Shows the APK of products and can sorts by it.",
   "permissions": ["scripting"], 
+  "background": {
+    "service_worker": "background.js"
+  },
 
   "host_permissions": [
     "https://www.systembolaget.se/sortiment*"
