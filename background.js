@@ -553,8 +553,6 @@ function searchPage(reorder, specialCasesIdToApk) {
     chrome.scripting.executeScript({
       target: { tabId: tab.id },
       function: (reorder, specialCasesIdToApk) => {
-
-
         const container = document.querySelector('.css-176nwz9.e18roaja0');
         const productDivs = Array.from(container.querySelectorAll('.css-1lc3wed.enuzix00'));
 
@@ -603,10 +601,12 @@ function searchPage(reorder, specialCasesIdToApk) {
 
           productDiv.querySelectorAll('.css-3yr2fs.e1hb4h4s0')[0].textContent = price + "kr, APK:" + apk;
           container.appendChild(productDiv);
+          
         });
 
         // Resolve the promise when the task is complete
         return Promise.resolve("Divs reordered successfully");
+
       },
       args: [reorder, specialCasesIdToApk]
     }).then((result) => {
@@ -662,16 +662,22 @@ function productPage(specialCasesIdToApk) {
 }
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+
   if (tab.url && tab.url.startsWith("https://www.systembolaget.se/produkt")) {
     // Wait for the page to fully load (complete status) before running productPage
     if (changeInfo.status === "complete") {
-      productPage(specialCasesIdToApk);
+      setTimeout(() => {
+        productPage(specialCasesIdToApk);
+      }, 1000);
+
     }
   }
   if (tab.url && tab.url.startsWith("https://www.systembolaget.se/sortiment")) {
     // Wait for the page to fully load (complete status) before running productPage
     if (changeInfo.status === "complete") {
-      productPage(specialCasesIdToApk);
+      setTimeout(() => {
+        searchPage(0, specialCasesIdToApk);
+      }, 2000);
     }
   }
 });
