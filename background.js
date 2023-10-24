@@ -601,7 +601,7 @@ function searchPage(reorder, specialCasesIdToApk) {
 
           productDiv.querySelectorAll('.css-3yr2fs.e1hb4h4s0')[0].textContent = price + "kr, APK:" + apk;
           container.appendChild(productDiv);
-          
+
         });
 
         // Resolve the promise when the task is complete
@@ -661,15 +661,13 @@ function productPage(specialCasesIdToApk) {
   });
 }
 
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-
+chrome.tabs.onUpdated.addListener((details, changeInfo, tab) => {
   if (tab.url && tab.url.startsWith("https://www.systembolaget.se/produkt")) {
     // Wait for the page to fully load (complete status) before running productPage
     if (changeInfo.status === "complete") {
       setTimeout(() => {
         productPage(specialCasesIdToApk);
       }, 1000);
-
     }
   }
   if (tab.url && tab.url.startsWith("https://www.systembolaget.se/sortiment")) {
@@ -677,7 +675,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status === "complete") {
       setTimeout(() => {
         searchPage(0, specialCasesIdToApk);
-      }, 2000);
+      }, 3000);
     }
   }
 });
@@ -687,4 +685,11 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     // Run the searchPage function when the "Sort" button is clicked
     searchPage(1, specialCasesIdToApk);
   }
+  if (request.message === "loadProductsAgain") {
+    searchPage(0, specialCasesIdToApk);
+  }
 });
+
+
+
+
