@@ -550,69 +550,71 @@ const specialCasesIdToApk = {
 function searchPage(reorder, specialCasesIdToApk) {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     const tab = tabs[0];
-    chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      function: (reorder, specialCasesIdToApk) => {
-        const container = document.querySelector('.css-176nwz9.e18roaja0');
-        const productDivs = Array.from(container.querySelectorAll('.css-1lc3wed.enuzix00'));
+    if (tabs.length > 0) {
+      chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        function: (reorder, specialCasesIdToApk) => {
+          const container = document.querySelector('.css-176nwz9.e18roaja0');
+          const productDivs = Array.from(container.querySelectorAll('.css-1lc3wed.enuzix00'));
 
 
-        function calcApk(productDiv) {
-          const productShortNrText = productDiv.querySelector('.css-1rzqs9q.e3wog7r0');
-          const productShortNr = productShortNrText.textContent.replace("Nr ", "");
+          function calcApk(productDiv) {
+            const productShortNrText = productDiv.querySelector('.css-1rzqs9q.e3wog7r0');
+            const productShortNr = productShortNrText.textContent.replace("Nr ", "");
 
-          if (productShortNr in specialCasesIdToApk) {
-            const apk = specialCasesIdToApk[productShortNr];
+            if (productShortNr in specialCasesIdToApk) {
+              const apk = specialCasesIdToApk[productShortNr];
+              return apk;
+            }
+
+            const volumeElement = productDiv.querySelectorAll('.css-mzek0q.e1yhfiwj0');
+            const mlVolume = parseFloat(volumeElement[1].textContent.trim());
+            const alcoholPercentage = parseFloat(volumeElement[2].textContent.replace(",", "."));
+
+            const priceElement = productDiv.querySelectorAll('.css-3yr2fs.e1hb4h4s0');
+            const price = parseFloat(priceElement[0].textContent.replace(":", "."));
+
+            const apk = parseInt(Math.round(mlVolume * alcoholPercentage / price));
+
             return apk;
           }
 
-          const volumeElement = productDiv.querySelectorAll('.css-mzek0q.e1yhfiwj0');
-          const mlVolume = parseFloat(volumeElement[1].textContent.trim());
-          const alcoholPercentage = parseFloat(volumeElement[2].textContent.replace(",", "."));
+          function sortByApk(a, b) {
+            const apkA = calcApk(a);
+            const apkB = calcApk(b);
+            return apkB - apkA;
+          }
 
-          const priceElement = productDiv.querySelectorAll('.css-3yr2fs.e1hb4h4s0');
-          const price = parseFloat(priceElement[0].textContent.replace(":", "."));
+          function sortByDefault(a, b) {
+            return 0; // No sorting, maintain the original order
+          }
 
-          const apk = parseInt(Math.round(mlVolume * alcoholPercentage / price));
+          // Conditionally select the sorting function based on reorder value
+          const sortingFunction = reorder === 1 ? sortByApk : sortByDefault;
 
-          return apk;
-        }
-
-        function sortByApk(a, b) {
-          const apkA = calcApk(a);
-          const apkB = calcApk(b);
-          return apkB - apkA;
-        }
-
-        function sortByDefault(a, b) {
-          return 0; // No sorting, maintain the original order
-        }
-
-        // Conditionally select the sorting function based on reorder value
-        const sortingFunction = reorder === 1 ? sortByApk : sortByDefault;
-
-        productDivs.sort(sortingFunction);
+          productDivs.sort(sortingFunction);
 
 
-        productDivs.forEach((productDiv) => {
-          const apk = calcApk(productDiv);
-          const priceElement = productDiv.querySelectorAll('.css-3yr2fs.e1hb4h4s0');
-          const price = parseFloat(priceElement[0].textContent.replace(":", "."));
+          productDivs.forEach((productDiv) => {
+            const apk = calcApk(productDiv);
+            const priceElement = productDiv.querySelectorAll('.css-3yr2fs.e1hb4h4s0');
+            const price = parseFloat(priceElement[0].textContent.replace(":", "."));
 
-          productDiv.querySelectorAll('.css-3yr2fs.e1hb4h4s0')[0].textContent = price + "kr, APK:" + apk;
-          container.appendChild(productDiv);
+            productDiv.querySelectorAll('.css-3yr2fs.e1hb4h4s0')[0].textContent = price + "kr, APK:" + apk;
+            container.appendChild(productDiv);
 
-        });
+          });
 
-        // Resolve the promise when the task is complete
-        return Promise.resolve("Divs reordered successfully");
+          // Resolve the promise when the task is complete
+          return Promise.resolve("Divs reordered successfully");
 
-      },
-      args: [reorder, specialCasesIdToApk]
-    }).then((result) => {
-    }).catch(() => {
-      console.log("Systembolaget-APK-Extension Error");
-    });
+        },
+        args: [reorder, specialCasesIdToApk]
+      }).then((result) => {
+      }).catch(() => {
+        console.log("Systembolaget-APK-Extension Error");
+      });
+    }
   });
 }
 
@@ -621,43 +623,44 @@ function searchPage(reorder, specialCasesIdToApk) {
 function productPage(specialCasesIdToApk) {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     const tab = tabs[0];
-    // Send a message to the content script
-    chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      function: (specialCasesIdToApk) => {
+    if (tabs.length > 0) {
+      // Send a message to the content script
+      chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        function: (specialCasesIdToApk) => {
 
-        const productShortNrText = document.querySelector('.css-10upsrr.e1hb4h4s0');
-        const productShortNr = parseInt(productShortNrText.textContent);
+          const productShortNrText = document.querySelector('.css-10upsrr.e1hb4h4s0');
+          const productShortNr = parseInt(productShortNrText.textContent);
 
-        if (productShortNr in specialCasesIdToApk) {
-          const apk = specialCasesIdToApk[productShortNr];
+          if (productShortNr in specialCasesIdToApk) {
+            const apk = specialCasesIdToApk[productShortNr];
+            const priceElement = document.querySelector('.css-6dcbqr.e1hb4h4s0');
+            const price = parseFloat(priceElement.textContent.replace(":", "."));
+            priceElement.textContent = price + "kr, APK:" + apk;
+            return;
+          }
+
+
+
+          const volumeElement = document.querySelector('.css-1yfm6cm.e18roaja0');
           const priceElement = document.querySelector('.css-6dcbqr.e1hb4h4s0');
+
+          // Parse the extracted information as needed
+          const volume = parseFloat(volumeElement.textContent.split(/[ ·]/)[2]);
+          const alcoholPercentage = parseFloat(volumeElement.textContent.split(/[ ·]/)[4].replace(",", "."));
           const price = parseFloat(priceElement.textContent.replace(":", "."));
+
+          // Calculate APK using the extracted data
+          const apk = parseInt(Math.round(volume * alcoholPercentage / price));
+
           priceElement.textContent = price + "kr, APK:" + apk;
-          return;
-        }
-
-
-
-        const volumeElement = document.querySelector('.css-1yfm6cm.e18roaja0');
-        const priceElement = document.querySelector('.css-6dcbqr.e1hb4h4s0');
-
-        // Parse the extracted information as needed
-        const volume = parseFloat(volumeElement.textContent.split(/[ ·]/)[2]);
-        const alcoholPercentage = parseFloat(volumeElement.textContent.split(/[ ·]/)[4].replace(",", "."));
-        const price = parseFloat(priceElement.textContent.replace(":", "."));
-
-        // Calculate APK using the extracted data
-        const apk = parseInt(Math.round(volume * alcoholPercentage / price));
-
-        priceElement.textContent = price + "kr, APK:" + apk;
-      },
-      args: [specialCasesIdToApk]
-    }).then((result) => {
-      console.log(result); // Display the result or perform other actions
-    }).catch(() => {
-      console.log("Systembolaget-APK-Extension Error"); // Handle any errors
-    });
+        },
+        args: [specialCasesIdToApk]
+      }).then((result) => {
+      }).catch(() => {
+        console.log("Systembolaget-APK-Extension Error"); // Handle any errors
+      });
+    }
   });
 }
 
@@ -691,6 +694,7 @@ chrome.tabs.onUpdated.addListener((details, changeInfo, tab) => {
     }
   }
 });
+
 
 
 
