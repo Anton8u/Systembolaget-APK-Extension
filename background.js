@@ -639,15 +639,15 @@ function productPage(specialCasesIdToApk) {
             return;
           }
 
-
-
           const volumeElement = document.querySelector('.css-1yfm6cm.e18roaja0');
           const priceElement = document.querySelector('.css-6dcbqr.e1hb4h4s0');
 
           // Parse the extracted information as needed
-          const volume = parseFloat(volumeElement.textContent.split(/[ ·]/)[2]);
-          const alcoholPercentage = parseFloat(volumeElement.textContent.split(/[ ·]/)[4].replace(",", "."));
-          const price = parseFloat(priceElement.textContent.replace(":", "."));
+
+          const volume = parseFloat(volumeElement.textContent.replace(" ", "").split(/[ ·]/).filter(str => str !== "")[1]);
+          const alcoholPercentage = parseFloat(volumeElement.textContent.replace(" ", "").split(/[ ·]/).filter(str => str !== "")[3].replace(",", "."));
+          const price = parseFloat(priceElement.textContent.replace(" ", ""));
+          console.log((volumeElement.textContent.replace(" ", "").split(/[ ·]/).filter(str => str !== "")));
 
           // Calculate APK using the extracted data
           const apk = parseInt(Math.round(volume * alcoholPercentage / price));
