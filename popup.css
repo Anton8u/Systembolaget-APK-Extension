@@ -9,7 +9,8 @@ body {
   font-size: 18px;
   color: #FCD205;
   /* Choose your desired color */
-  margin-bottom: 7px;
+  margin-top: 15px;
+  margin-bottom: 10px;
   /* Add some space between title and button */
 }
 
@@ -40,17 +41,18 @@ body {
 
 /* Style the credit text */
 .credit {
-  text-align: center;
+  text-align: right;
   font-size: 10px;
+  padding-top: 3px;
   color: #FCD205;
 }
 
 
 .info-icon {
   position: absolute;
-  top: 10px;
+  bottom: 6px;
   left: 10px;
   font-size: 16px;
   cursor: help;
-  color: white;
+  color: #FCD205;
 }
