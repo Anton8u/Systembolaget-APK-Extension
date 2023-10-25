@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Systembolaget APK",
+  "name": "Systembolaget APK-Extension",
   "version": "1.0",
-  "description": "Shows the APK of products and can sorts by it.",
+  "description": "Displays APK on Systembolaget's website and can sort products based on it.",
   "permissions": ["scripting"], 
   "background": {
     "service_worker": "background.js"
