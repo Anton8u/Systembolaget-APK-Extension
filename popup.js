@@ -1,6 +1,6 @@
 // Detect the browser's preferred language
 const userLanguage = navigator.language;
-
+console.log("User language: " + userLanguage);
 // Define the text content in both Swedish and English
 const languageText = {
   SWE: {
@@ -15,7 +15,7 @@ const languageText = {
   },
 };
 
-const text = userLanguage.startsWith("sv") ? languageText.SWE : languageText.ENG;
+const text = (userLanguage.startsWith("sv")) ? languageText.SWE : languageText.ENG;
 
 // Update the popup's content
 document.querySelector('.title').textContent = text.title;
