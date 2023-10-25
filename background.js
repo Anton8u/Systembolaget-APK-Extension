@@ -568,14 +568,13 @@ function searchPage(reorder, specialCasesIdToApk) {
             }
 
             const volumeElement = productDiv.querySelectorAll('.css-mzek0q.e1yhfiwj0');
-            const mlVolume = parseFloat(volumeElement[1].textContent.trim());
+            const mlVolume = parseFloat(volumeElement[1].textContent.replace(" ","").replace("ml", ""));
             const alcoholPercentage = parseFloat(volumeElement[2].textContent.replace(",", "."));
 
             const priceElement = productDiv.querySelectorAll('.css-3yr2fs.e1hb4h4s0');
-            const price = parseFloat(priceElement[0].textContent.replace(":", "."));
+            const price = parseFloat(priceElement[0].textContent.replace(":", ".").replace(" ",""));
 
             const apk = parseInt(Math.round(mlVolume * alcoholPercentage / price));
-
             return apk;
           }
 
@@ -600,14 +599,16 @@ function searchPage(reorder, specialCasesIdToApk) {
             const priceElement = productDiv.querySelectorAll('.css-3yr2fs.e1hb4h4s0');
             const price = parseFloat(priceElement[0].textContent.replace(":", "."));
 
-            productDiv.querySelectorAll('.css-3yr2fs.e1hb4h4s0')[0].textContent = price + "kr, APK:" + apk;
+            productDiv.querySelectorAll('.css-3yr2fs.e1hb4h4s0')[0].textContent = price + "kr, APK:" + apk/100;
+
+            if (apk > 250) {
+              productDiv.querySelectorAll('.css-3yr2fs.e1hb4h4s0')[0].textContent = price + "kr, APK error";
+            }
             container.appendChild(productDiv);
 
           });
-
           // Resolve the promise when the task is complete
           return Promise.resolve("Divs reordered successfully");
-
         },
         args: [reorder, specialCasesIdToApk]
       }).then((result) => {
@@ -634,7 +635,7 @@ function productPage(specialCasesIdToApk) {
             const apk = specialCasesIdToApk[productShortNr];
             const priceElement = document.querySelector('.css-6dcbqr.e1hb4h4s0');
             const price = parseFloat(priceElement.textContent.replace(":", "."));
-            priceElement.textContent = price + "kr, APK:" + apk;
+            priceElement.textContent = price + "kr, APK:" + apk/100;
             return;
           }
 
@@ -650,8 +651,10 @@ function productPage(specialCasesIdToApk) {
 
           // Calculate APK using the extracted data
           const apk = parseInt(Math.round(volume * alcoholPercentage / price));
-
-          priceElement.textContent = price + "kr, APK:" + apk;
+          priceElement.textContent = price + "kr, APK:" + apk/100;
+          if (apk > 250) {
+            priceElement.textContent = price + "kr, APK error";
+          }
         },
         args: [specialCasesIdToApk]
       }).then((result) => {
