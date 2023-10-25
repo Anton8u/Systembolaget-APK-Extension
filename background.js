@@ -665,28 +665,30 @@ chrome.tabs.onUpdated.addListener((details, changeInfo, tab) => {
   if (tab.url && tab.url.startsWith("https://www.systembolaget.se/produkt")) {
     // Wait for the page to fully load (complete status) before running productPage
     if (changeInfo.status === "complete") {
-      setTimeout(() => {
-        productPage(specialCasesIdToApk);
-      }, 1000);
+      let timeout = 100;
+      for (let i = 0; i < 5; i++) {
+        setTimeout(() => {
+          try {
+            productPage(specialCasesIdToApk);
+          } catch {
+            console.log("Systemet-APK.Extension: Page not loaded yet");
+          }
+        }, timeout);
+        timeout *= 2;
+      }
     }
   }
   if (tab.url && tab.url.startsWith("https://www.systembolaget.se/sortiment")) {
     // Wait for the page to fully load (complete status) before running productPage
     if (changeInfo.status === "complete") {
-      setTimeout(() => {
-        searchPage(0, specialCasesIdToApk);
-      }, 3000);
+      let timeout = 200;
+      for (let i = 0; i < 5; i++) {
+        setTimeout(() => {
+          searchPage(0, specialCasesIdToApk);
+        }, timeout);
+        timeout *= 2;
+      }
     }
-  }
-});
-
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  if (request.message === "sort") {
-    // Run the searchPage function when the "Sort" button is clicked
-    searchPage(1, specialCasesIdToApk);
-  }
-  if (request.message === "loadProductsAgain") {
-    searchPage(0, specialCasesIdToApk);
   }
 });
 
