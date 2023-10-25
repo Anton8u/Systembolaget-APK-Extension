@@ -667,7 +667,7 @@ chrome.tabs.onUpdated.addListener((details, changeInfo, tab) => {
     // Wait for the page to fully load (complete status) before running productPage
     if (changeInfo.status === "complete") {
       let timeout = 100;
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 3; i++) {
         setTimeout(() => {
           try {
             productPage(specialCasesIdToApk);
@@ -682,8 +682,8 @@ chrome.tabs.onUpdated.addListener((details, changeInfo, tab) => {
   if (tab.url && tab.url.startsWith("https://www.systembolaget.se/sortiment")) {
     // Wait for the page to fully load (complete status) before running productPage
     if (changeInfo.status === "complete") {
-      let timeout = 200;
-      for (let i = 0; i < 5; i++) {
+      let timeout = 500;
+      for (let i = 0; i < 3; i++) {
         setTimeout(() => {
           searchPage(0, specialCasesIdToApk);
         }, timeout);
