@@ -618,8 +618,6 @@ function searchPage(reorder, specialCasesIdToApk) {
   });
 }
 
-//searchPage(0);
-
 function productPage(specialCasesIdToApk) {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     const tab = tabs[0];
@@ -692,6 +690,16 @@ chrome.tabs.onUpdated.addListener((details, changeInfo, tab) => {
         timeout *= 2;
       }
     }
+  }
+});
+
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  if (request.message === "sort") {
+    // Run the searchPage function when the "Sort" button is clicked
+    searchPage(1, specialCasesIdToApk);
+  }
+  if (request.message === "loadProductsAgain") {
+    searchPage(0, specialCasesIdToApk);
   }
 });
 
