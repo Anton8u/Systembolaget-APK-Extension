@@ -557,13 +557,13 @@ function searchPage(reorder, specialCasesIdToApk) {
           const container = document.querySelector('.css-176nwz9');
           const productDivs = Array.from(container.querySelectorAll('.css-1lc3wed'));
 
-          /*
-          // Remove divs with the class ".css-1wzm2om"
-          const elementsToRemove = document.querySelectorAll('.css-jwxeh2 e18roaja0');
+          
+          // Remove "Vad passar med detta" divs
+          const elementsToRemove = document.querySelectorAll('.css-jwxeh2.e18roaja0');
           elementsToRemove.forEach((element) => {
             element.remove();
           });
-          */
+          
 
           function calcApk(productDiv) {
             const productShortNrText = productDiv.querySelector('.css-yf7p47');
