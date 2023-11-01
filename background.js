@@ -635,32 +635,31 @@ function productPage(specialCasesIdToApk) {
         target: { tabId: tab.id },
         function: (specialCasesIdToApk) => {
 
-          const productShortNrText = document.querySelector('.css-10upsrr.e1hb4h4s0');
+          const productShortNrText = document.querySelector('.css-shsfoy');
           const productShortNr = parseInt(productShortNrText.textContent);
 
           if (productShortNr in specialCasesIdToApk) {
             const apk = specialCasesIdToApk[productShortNr];
-            const priceElement = document.querySelector('.css-149y42u.e1hb4h4s0');
+            const priceElement = document.querySelector('.css-1ss6sno.e1hb4h4s0');
             const price = parseFloat(priceElement.textContent.replace(":", "."));
             priceElement.textContent = price + "kr <br> APK:" + apk/100;
             return;
           }
 
           const volumeElement = document.querySelector('.css-1yfm6cm.e18roaja0');
-          const priceElement = document.querySelector('.css-149y42u.e1hb4h4s0');
+          const priceElement = document.querySelector('.css-1ss6sno.e1hb4h4s0');
 
           // Parse the extracted information as needed
 
           const volume = parseFloat(volumeElement.textContent.replace(" ", "").split(/[ ·]/).filter(str => str !== "")[1]);
           const alcoholPercentage = parseFloat(volumeElement.textContent.replace(" ", "").split(/[ ·]/).filter(str => str !== "")[3].replace(",", "."));
           const price = parseFloat(priceElement.textContent.replace(" ", ""));
-          console.log((volumeElement.textContent.replace(" ", "").split(/[ ·]/).filter(str => str !== "")));
 
           // Calculate APK using the extracted data
           const apk = parseInt(Math.round(volume * alcoholPercentage / price));
-          priceElement.innerHTML = price + "kr <br> APK:" + apk/100;
+          priceElement.textContent = price + "kr, APK:" + apk/100;
           if (apk > 250) {
-            priceElement.innerHTML = price + "kr <br> APK: error";
+            priceElement.textContent = price + "kr, APK: error";
           }
         },
         args: [specialCasesIdToApk]
