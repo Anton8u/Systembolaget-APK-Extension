@@ -660,7 +660,7 @@ function productPage(specialCasesIdToApk) {
           const apk = parseInt(Math.round(volume * alcoholPercentage / price));
           priceElement.innerHTML = price + "kr <br> APK:" + apk/100;
           if (apk > 250) {
-            priceElement.textContent = price + "kr <br> APK: error";
+            priceElement.innerHTML = price + "kr <br> APK: error";
           }
         },
         args: [specialCasesIdToApk]
