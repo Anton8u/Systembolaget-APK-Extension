@@ -554,12 +554,19 @@ function searchPage(reorder, specialCasesIdToApk) {
       chrome.scripting.executeScript({
         target: { tabId: tab.id },
         function: (reorder, specialCasesIdToApk) => {
-          const container = document.querySelector('.css-176nwz9.e18roaja0');
-          const productDivs = Array.from(container.querySelectorAll('.css-1lc3wed.enuzix00'));
+          const container = document.querySelector('.css-176nwz9');
+          const productDivs = Array.from(container.querySelectorAll('.css-1lc3wed'));
 
+          /*
+          // Remove divs with the class ".css-1wzm2om"
+          const elementsToRemove = document.querySelectorAll('.css-jwxeh2 e18roaja0');
+          elementsToRemove.forEach((element) => {
+            element.remove();
+          });
+          */
 
           function calcApk(productDiv) {
-            const productShortNrText = productDiv.querySelector('.css-1rzqs9q.e3wog7r0');
+            const productShortNrText = productDiv.querySelector('.css-yf7p47');
             const productShortNr = productShortNrText.textContent.replace("Nr ", "");
 
             if (productShortNr in specialCasesIdToApk) {
@@ -567,11 +574,11 @@ function searchPage(reorder, specialCasesIdToApk) {
               return apk;
             }
 
-            const volumeElement = productDiv.querySelectorAll('.css-mzek0q.e1yhfiwj0');
+            const volumeElement = productDiv.querySelectorAll('.css-1r1n3du');
             const mlVolume = parseFloat(volumeElement[1].textContent.replace(" ","").replace("ml", ""));
             const alcoholPercentage = parseFloat(volumeElement[2].textContent.replace(",", "."));
 
-            const priceElement = productDiv.querySelectorAll('.css-3yr2fs.e1hb4h4s0');
+            const priceElement = productDiv.querySelectorAll('.css-134u9m6');
             const price = parseFloat(priceElement[0].textContent.replace(":", ".").replace(" ",""));
 
             const apk = parseInt(Math.round(mlVolume * alcoholPercentage / price));
@@ -596,13 +603,13 @@ function searchPage(reorder, specialCasesIdToApk) {
 
           productDivs.forEach((productDiv) => {
             const apk = calcApk(productDiv);
-            const priceElement = productDiv.querySelectorAll('.css-3yr2fs.e1hb4h4s0');
+            const priceElement = productDiv.querySelectorAll('.css-134u9m6');
             const price = parseFloat(priceElement[0].textContent.replace(":", "."));
 
-            productDiv.querySelectorAll('.css-3yr2fs.e1hb4h4s0')[0].textContent = price + "kr, APK:" + apk/100;
+            productDiv.querySelectorAll('.css-134u9m6')[0].innerHTML  = price + "kr <br> APK:" + apk/100;
 
-            if (apk > 250) {
-              productDiv.querySelectorAll('.css-3yr2fs.e1hb4h4s0')[0].textContent = price + "kr, APK error";
+            if (apk > 300) {
+              productDiv.querySelectorAll('.css-134u9m6')[0].innerHTML  = price + "kr <br> APK: error";
             }
             container.appendChild(productDiv);
 
@@ -635,7 +642,7 @@ function productPage(specialCasesIdToApk) {
             const apk = specialCasesIdToApk[productShortNr];
             const priceElement = document.querySelector('.css-6dcbqr.e1hb4h4s0');
             const price = parseFloat(priceElement.textContent.replace(":", "."));
-            priceElement.textContent = price + "kr, APK:" + apk/100;
+            priceElement.textContent = price + "kr <br> APK:" + apk/100;
             return;
           }
 
@@ -651,9 +658,9 @@ function productPage(specialCasesIdToApk) {
 
           // Calculate APK using the extracted data
           const apk = parseInt(Math.round(volume * alcoholPercentage / price));
-          priceElement.textContent = price + "kr, APK:" + apk/100;
+          priceElement.innerHTML = price + "kr <br> APK:" + apk/100;
           if (apk > 250) {
-            priceElement.textContent = price + "kr, APK error";
+            priceElement.textContent = price + "kr <br> APK: error";
           }
         },
         args: [specialCasesIdToApk]
