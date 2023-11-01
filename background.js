@@ -640,14 +640,14 @@ function productPage(specialCasesIdToApk) {
 
           if (productShortNr in specialCasesIdToApk) {
             const apk = specialCasesIdToApk[productShortNr];
-            const priceElement = document.querySelector('.css-6dcbqr.e1hb4h4s0');
+            const priceElement = document.querySelector('.css-149y42u.e1hb4h4s0');
             const price = parseFloat(priceElement.textContent.replace(":", "."));
             priceElement.textContent = price + "kr <br> APK:" + apk/100;
             return;
           }
 
           const volumeElement = document.querySelector('.css-1yfm6cm.e18roaja0');
-          const priceElement = document.querySelector('.css-6dcbqr.e1hb4h4s0');
+          const priceElement = document.querySelector('.css-149y42u.e1hb4h4s0');
 
           // Parse the extracted information as needed
 
