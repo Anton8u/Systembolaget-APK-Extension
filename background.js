@@ -626,6 +626,8 @@ function searchPage(reorder, specialCasesIdToApk) {
   });
 }
 
+
+
 function productPage(specialCasesIdToApk) {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     const tab = tabs[0];
@@ -634,33 +636,38 @@ function productPage(specialCasesIdToApk) {
       chrome.scripting.executeScript({
         target: { tabId: tab.id },
         function: (specialCasesIdToApk) => {
+          documentElem = document.querySelector('.css-1c21j0p');
+          docInnerText = documentElem.innerText.split("\n");
 
-          const productShortNrText = document.querySelector('.css-shsfoy');
-          const productShortNr = parseInt(productShortNrText.textContent);
+          for (let i = 0; i < 50; i++) {
+            console.log(i, docInnerText[i])
+          }
 
+          const productShortNr = docInnerText[34].split("\n")[0].replace("Nr ", "");
           if (productShortNr in specialCasesIdToApk) {
             const apk = specialCasesIdToApk[productShortNr];
-            const priceElement = document.querySelector('.css-1ss6sno.e1hb4h4s0');
+          
             const price = parseFloat(priceElement.textContent.replace(":", "."));
             priceElement.textContent = price + "kr <br> APK:" + apk/100;
             return;
           }
 
-          const volumeElement = document.querySelector('.css-1yfm6cm.e18roaja0');
-          const priceElement = document.querySelector('.css-1ss6sno.e1hb4h4s0');
-
           // Parse the extracted information as needed
 
-          const volume = parseFloat(volumeElement.textContent.replace(" ", "").split(/[ ·]/).filter(str => str !== "")[1]);
-          const alcoholPercentage = parseFloat(volumeElement.textContent.replace(" ", "").split(/[ ·]/).filter(str => str !== "")[3].replace(",", "."));
-          const price = parseFloat(priceElement.textContent.replace(" ", ""));
+          const volume = parseFloat(docInnerText[26]);
+          const alcoholPercentage = parseFloat(docInnerText[30].replace(" ", ""));
+          const price = parseFloat(docInnerText[36].replace(" ", ""));
 
+          
           // Calculate APK using the extracted data
           const apk = parseInt(Math.round(volume * alcoholPercentage / price));
+          console.log(volume, alcoholPercentage, price, apk)
+          /*
           priceElement.textContent = price + "kr, APK:" + apk/100;
           if (apk > 250) {
             priceElement.textContent = price + "kr, APK: error";
           }
+          */
         },
         args: [specialCasesIdToApk]
       }).then((result) => {
@@ -701,6 +708,8 @@ chrome.tabs.onUpdated.addListener((details, changeInfo, tab) => {
     }
   }
 });
+
+
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message === "sort") {
