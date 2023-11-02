@@ -639,14 +639,19 @@ function productPage(specialCasesIdToApk) {
           documentElem = document.querySelector('.css-1c21j0p');
           docInnerText = documentElem.innerText.split("\n");
 
-          for (let i = 0; i < 50; i++) {
+          let alcoholPercentageI;
+          for (let i = 0; i < 40; i++) {
             console.log(i, docInnerText[i])
+            if (docInnerText[i].includes("% vol.")) {
+              alcoholPercentageI = i;
+          
+            }
           }
 
-          const productShortNr = docInnerText[34].split("\n")[0].replace("Nr ", "");
+
+          const productShortNr = docInnerText[alcoholPercentageI+4].split("\n")[0].replace("Nr ", "");
           if (productShortNr in specialCasesIdToApk) {
             const apk = specialCasesIdToApk[productShortNr];
-          
             const price = parseFloat(priceElement.textContent.replace(":", "."));
             priceElement.textContent = price + "kr <br> APK:" + apk/100;
             return;
@@ -654,9 +659,9 @@ function productPage(specialCasesIdToApk) {
 
           // Parse the extracted information as needed
 
-          const volume = parseFloat(docInnerText[26]);
-          const alcoholPercentage = parseFloat(docInnerText[30].replace(" ", ""));
-          const price = parseFloat(docInnerText[36].replace(" ", ""));
+          const volume = parseFloat(docInnerText[alcoholPercentageI-4]);
+          const alcoholPercentage = parseFloat(docInnerText[alcoholPercentageI].replace(",", "."));
+          const price = parseFloat(docInnerText[alcoholPercentageI+6].replace(":", "."));
 
           
           // Calculate APK using the extracted data
