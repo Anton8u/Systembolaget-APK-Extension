@@ -671,8 +671,11 @@ function productPage(specialCasesIdToApk) {
               matchingDivs.push(div);
             }
           }
-          const priceElementClass = "."+matchingDivs[matchingDivs.length-2].classList[0];
-          console.log(priceElementClass)
+          const priceContainerClass = "."+matchingDivs[matchingDivs.length-2].classList[0];
+          
+          const priceDivs = document.querySelectorAll(`${priceContainerClass} p`);
+
+          pricePClass = "."+priceDivs[0].classList.value.replace(" ",".");
 
           documentElem = document.querySelector(mainPageClass);
           docInnerText = documentElem.innerText.split("\n");
@@ -691,7 +694,7 @@ function productPage(specialCasesIdToApk) {
           const productShortNr = docInnerText[alcoholPercentageI+4].split("\n")[0].replace("Nr ", "");
           if (productShortNr in specialCasesIdToApk) {
             const apk = specialCasesIdToApk[productShortNr];
-            document.querySelector('.css-149y42u.e1hb4h4s0').textContent = price + "kr <br> APK:" + apk/100;
+            document.querySelector(pricePClass).textContent = price + "kr <br> APK:" + apk/100;
             return;
           }
 
@@ -699,14 +702,13 @@ function productPage(specialCasesIdToApk) {
           
           // Calculate APK using the extracted data
           const apk = parseInt(Math.round(volume * alcoholPercentage / price));
-          console.log(apk);
 
-          if (apk != undefined) {
+          if (typeof apk === "number" && !isNaN(apk)) {
             if (apk > 250) {
-              document.querySelector('.css-149y42u.e1hb4h4s0').textContent = price + "kr, APK: error";
+              document.querySelector(pricePClass).textContent = price + "kr, APK: error";
             }
             else {
-              document.querySelector('.css-149y42u.e1hb4h4s0').textContent = price + "kr, APK:" + apk / 100;
+              document.querySelector(pricePClass).textContent = price + "kr, APK:" + apk / 100;
             }
           }
       
