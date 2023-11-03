@@ -547,26 +547,6 @@ const specialCasesIdToApk = {
   '11937': 1,
 }
 
-function findDivs() {
-  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    const tab = tabs[0];
-    if (tabs.length > 0) {
-      chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        function: () => {
-          const divs = document.querySelectorAll('div[class^="css-"]');
-          for (const div of divs) {
-            //console.log(div)
-            console.log("wow: ", div.classList[0]); // Return the first class name
-            
-          }
-
-        }
-      });
-    }
-  });
-}
-
 
 function searchPage(reorder, specialCasesIdToApk) {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -575,9 +555,11 @@ function searchPage(reorder, specialCasesIdToApk) {
       chrome.scripting.executeScript({
         target: { tabId: tab.id },
         function: (reorder, specialCasesIdToApk) => {
-          const container = document.querySelector('.css-176nwz9');
-          const productDivs = Array.from(container.querySelectorAll('.css-1lc3wed'));
 
+          const gridContainer = document.querySelector('div[display="grid"]');
+          
+
+          const divs = Array.from(document.querySelectorAll('a[id^="tile:"]')); //actully links not div
           
           // Remove "Vad passar med detta" divs
           const elementsToRemove = document.querySelectorAll('.css-jwxeh2.e18roaja0');
@@ -632,7 +614,7 @@ function searchPage(reorder, specialCasesIdToApk) {
             if (apk > 300) {
               productDiv.querySelectorAll('.css-134u9m6')[0].innerHTML  = price + "kr <br> APK: error";
             }
-            container.appendChild(productDiv);
+            gridContainer.appendChild(productDiv);
 
           });
           // Resolve the promise when the task is complete
