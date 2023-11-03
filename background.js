@@ -547,6 +547,27 @@ const specialCasesIdToApk = {
   '11937': 1,
 }
 
+function findDivs() {
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    const tab = tabs[0];
+    if (tabs.length > 0) {
+      chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        function: () => {
+          const divs = document.querySelectorAll('div[class^="css-"]');
+          for (const div of divs) {
+            //console.log(div)
+            console.log("wow: ", div.classList[0]); // Return the first class name
+            
+          }
+
+        }
+      });
+    }
+  });
+}
+
+
 function searchPage(reorder, specialCasesIdToApk) {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     const tab = tabs[0];
@@ -632,47 +653,63 @@ function productPage(specialCasesIdToApk) {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     const tab = tabs[0];
     if (tabs.length > 0) {
-      // Send a message to the content script
       chrome.scripting.executeScript({
         target: { tabId: tab.id },
         function: (specialCasesIdToApk) => {
-          documentElem = document.querySelector('.css-1c21j0p');
+          const divs = document.querySelectorAll('div[class^="css-"]');
+          let mainPageClass;
+          for (const div of divs) {
+            if (div.textContent.includes("HemSortiment")) {
+              mainPageClass = "."+div.classList[0];
+              break;
+            }
+          }
+
+          let matchingDivs = [];
+          for (const div of divs) {
+            if (div.textContent.includes("kr/l")) {
+              matchingDivs.push(div);
+            }
+          }
+          const priceElementClass = "."+matchingDivs[matchingDivs.length-2].classList[0];
+          console.log(priceElementClass)
+
+          documentElem = document.querySelector(mainPageClass);
           docInnerText = documentElem.innerText.split("\n");
 
           let alcoholPercentageI;
           for (let i = 0; i < 40; i++) {
-            console.log(i, docInnerText[i])
             if (docInnerText[i].includes("% vol.")) {
               alcoholPercentageI = i;
-          
             }
           }
-
-
-          const productShortNr = docInnerText[alcoholPercentageI+4].split("\n")[0].replace("Nr ", "");
-          if (productShortNr in specialCasesIdToApk) {
-            const apk = specialCasesIdToApk[productShortNr];
-            const price = parseFloat(priceElement.textContent.replace(":", "."));
-            priceElement.textContent = price + "kr <br> APK:" + apk/100;
-            return;
-          }
-
-          // Parse the extracted information as needed
-
+          
           const volume = parseFloat(docInnerText[alcoholPercentageI-4]);
           const alcoholPercentage = parseFloat(docInnerText[alcoholPercentageI].replace(",", "."));
           const price = parseFloat(docInnerText[alcoholPercentageI+6].replace(":", "."));
 
+          const productShortNr = docInnerText[alcoholPercentageI+4].split("\n")[0].replace("Nr ", "");
+          if (productShortNr in specialCasesIdToApk) {
+            const apk = specialCasesIdToApk[productShortNr];
+            document.querySelector('.css-149y42u.e1hb4h4s0').textContent = price + "kr <br> APK:" + apk/100;
+            return;
+          }
+
+          // Parse the extracted information as needed
           
           // Calculate APK using the extracted data
           const apk = parseInt(Math.round(volume * alcoholPercentage / price));
-          console.log(volume, alcoholPercentage, price, apk)
-          /*
-          priceElement.textContent = price + "kr, APK:" + apk/100;
-          if (apk > 250) {
-            priceElement.textContent = price + "kr, APK: error";
+          console.log(apk);
+
+          if (apk != undefined) {
+            if (apk > 250) {
+              document.querySelector('.css-149y42u.e1hb4h4s0').textContent = price + "kr, APK: error";
+            }
+            else {
+              document.querySelector('.css-149y42u.e1hb4h4s0').textContent = price + "kr, APK:" + apk / 100;
+            }
           }
-          */
+      
         },
         args: [specialCasesIdToApk]
       }).then((result) => {
@@ -719,7 +756,8 @@ chrome.tabs.onUpdated.addListener((details, changeInfo, tab) => {
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message === "sort") {
     // Run the searchPage function when the "Sort" button is clicked
-    searchPage(1, specialCasesIdToApk);
+    //searchPage(1, specialCasesIdToApk);
+    findDivs();
   }
   if (request.message === "loadProductsAgain") {
     searchPage(0, specialCasesIdToApk);
