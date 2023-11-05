@@ -559,15 +559,15 @@ function searchPage(reorder, specialCasesIdToApk) {
           const gridContainer = document.querySelector('div[display="grid"]');
 
 
-          const productDivs = Array.from(document.querySelectorAll('a[id^="tile:"]')); //actully links not div
-
-          /*
-          // Remove "Vad passar med detta" divs
-          const elementsToRemove = document.querySelectorAll('.css-jwxeh2.e18roaja0');
+          const elementsToRemove = gridContainer.querySelectorAll('div');
           elementsToRemove.forEach((element) => {
-            element.remove();
+            if (element.textContent.includes("Vad passar till maten")) {
+              element.remove();
+              return;
+            }
           });
-          */
+
+          const productDivs = Array.from(document.querySelectorAll('a[id^="tile:"]')); //actully links not div
 
           function calcApk(productDiv) {
             const productDivOuterText = productDiv.innerText.split("\n");
@@ -652,7 +652,11 @@ function searchPage(reorder, specialCasesIdToApk) {
 
           // Custom function to insert an element after another element
           function insertAfter(newElement, referenceElement) {
-            referenceElement.parentNode.insertBefore(newElement, referenceElement.nextSibling);
+            if (referenceElement.nextSibling) {
+              referenceElement.parentNode.insertBefore(newElement, referenceElement.nextSibling);
+            } else {
+              referenceElement.parentNode.appendChild(newElement); // If there is no nextSibling, append to the end
+            }
           }
 
           // Function to calculate the background color based on APK value
@@ -660,7 +664,7 @@ function searchPage(reorder, specialCasesIdToApk) {
             if (apk > 280 || apk <= 0) {
               return `rgb(200, 200, 200)`;
             }
-            
+
             // Normalize the APK value to a range between 0 and 1
             const normalizedAPK = (apk - 0) / (280 - 0);
 
@@ -823,8 +827,3 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     searchPage(0, specialCasesIdToApk);
   }
 });
-
-
-
-
-
