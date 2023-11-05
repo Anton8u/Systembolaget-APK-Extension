@@ -337,7 +337,7 @@ const specialCasesIdToApk = {
   '81449': 33,
   '59122': 33,
   '58767': 33,
-  '53153': 33,
+  '53100': 33,
   '58769': 33,
   '55273': 33,
   '57099': 33,
@@ -557,32 +557,39 @@ function searchPage(reorder, specialCasesIdToApk) {
         function: (reorder, specialCasesIdToApk) => {
 
           const gridContainer = document.querySelector('div[display="grid"]');
-          
 
-          const divs = Array.from(document.querySelectorAll('a[id^="tile:"]')); //actully links not div
-          
+
+          const productDivs = Array.from(document.querySelectorAll('a[id^="tile:"]')); //actully links not div
+
+          /*
           // Remove "Vad passar med detta" divs
           const elementsToRemove = document.querySelectorAll('.css-jwxeh2.e18roaja0');
           elementsToRemove.forEach((element) => {
             element.remove();
           });
-          
+          */
 
           function calcApk(productDiv) {
-            const productShortNrText = productDiv.querySelector('.css-yf7p47');
-            const productShortNr = productShortNrText.textContent.replace("Nr ", "");
+            const productDivOuterText = productDiv.innerText.split("\n");
+            let alcoholPercentageI;
+            for (let i = 0; i < productDivOuterText.length; i++) {
+              if (productDivOuterText[i].includes("% vol.")) {
+                alcoholPercentageI = i;
+              }
+
+            }
+
+            const productShortNr = productDivOuterText[alcoholPercentageI - 6].replace("Nr ", "");
 
             if (productShortNr in specialCasesIdToApk) {
               const apk = specialCasesIdToApk[productShortNr];
               return apk;
             }
 
-            const volumeElement = productDiv.querySelectorAll('.css-1r1n3du');
-            const mlVolume = parseFloat(volumeElement[1].textContent.replace(" ","").replace("ml", ""));
-            const alcoholPercentage = parseFloat(volumeElement[2].textContent.replace(",", "."));
+            const mlVolume = parseFloat(productDivOuterText[alcoholPercentageI - 2].replace(" ", "").replace("ml", ""));
+            const alcoholPercentage = parseFloat(productDivOuterText[alcoholPercentageI].replace(",", "."));
 
-            const priceElement = productDiv.querySelectorAll('.css-134u9m6');
-            const price = parseFloat(priceElement[0].textContent.replace(":", ".").replace(" ",""));
+            const price = parseFloat(productDivOuterText[alcoholPercentageI + 2].replace(":", ".").replace(" ", ""));
 
             const apk = parseInt(Math.round(mlVolume * alcoholPercentage / price));
             return apk;
@@ -603,20 +610,92 @@ function searchPage(reorder, specialCasesIdToApk) {
 
           productDivs.sort(sortingFunction);
 
-
           productDivs.forEach((productDiv) => {
             const apk = calcApk(productDiv);
-            const priceElement = productDiv.querySelectorAll('.css-134u9m6');
-            const price = parseFloat(priceElement[0].textContent.replace(":", "."));
+            const apkDiv = productDiv.querySelector('.apk-div');
 
-            productDiv.querySelectorAll('.css-134u9m6')[0].innerHTML  = price + "kr <br> APK:" + apk/100;
+            if (!apkDiv) {
+              // Create a new div for APK information
+              const newApkDiv = document.createElement('div');
+              newApkDiv.textContent = `APK: ${apk / 100}`;
+              newApkDiv.classList.add('apk-div'); // Add a class to identify the APK div
 
-            if (apk > 300) {
-              productDiv.querySelectorAll('.css-134u9m6')[0].innerHTML  = price + "kr <br> APK: error";
+              const backgroundColor = getBackgroundColorForAPK(apk);
+
+              // Apply styles to the apkDiv
+              newApkDiv.style.cssText = `
+                font-family: __robotoCondensedBold_19bd2c, __robotoCondensedBold_Fallback_19bd2c;
+                font-size: 16px;
+                margin: 5px;
+                color: rgb(55, 51, 48);
+                background: ${backgroundColor};
+                line-height: 19px;
+                letter-spacing: 0.16em;
+                text-transform: uppercase;
+              `;
+
+              const firstChildDiv = productDiv.querySelector('div:first-child');
+              const childDivs = firstChildDiv.querySelectorAll('div');
+
+              if (childDivs[0].textContent == "Nyhet") {
+                insertAfter(newApkDiv, childDivs[2]);
+              }
+              else {
+                insertAfter(newApkDiv, childDivs[0]);
+              }
+
             }
-            gridContainer.appendChild(productDiv);
 
+            // Append the modified productDiv to the gridContainer
+            gridContainer.appendChild(productDiv);
           });
+
+          // Custom function to insert an element after another element
+          function insertAfter(newElement, referenceElement) {
+            referenceElement.parentNode.insertBefore(newElement, referenceElement.nextSibling);
+          }
+
+          // Function to calculate the background color based on APK value
+          function getBackgroundColorForAPK(apk) {
+            if (apk > 280 || apk <= 0) {
+              return `rgb(200, 200, 200)`;
+            }
+            
+            // Normalize the APK value to a range between 0 and 1
+            const normalizedAPK = (apk - 0) / (280 - 0);
+
+            // Interpolate colors from green to yellow to red
+            const green = [0, 128, 0];
+            const yellow = [255, 255, 0];
+            const red = [255, 0, 0];
+
+            const interpolatedColor = interpolateColor(
+              normalizedAPK,
+              red,
+              yellow,
+              green
+            );
+
+            return `rgb(${interpolatedColor.join(',')})`;
+          }
+
+          // Function to interpolate color values
+          function interpolateColor(fraction, ...colors) {
+            const numColors = colors.length - 1;
+            const index = fraction * numColors;
+            const startIndex = Math.floor(index);
+            const endIndex = Math.ceil(index);
+            const t = index - startIndex;
+            const startColor = colors[startIndex];
+            const endColor = colors[endIndex];
+
+            return [
+              startColor[0] + t * (endColor[0] - startColor[0]),
+              startColor[1] + t * (endColor[1] - startColor[1]),
+              startColor[2] + t * (endColor[2] - startColor[2]),
+            ];
+          }
+
           // Resolve the promise when the task is complete
           return Promise.resolve("Divs reordered successfully");
         },
@@ -642,7 +721,7 @@ function productPage(specialCasesIdToApk) {
           let mainPageClass;
           for (const div of divs) {
             if (div.textContent.includes("HemSortiment")) {
-              mainPageClass = "."+div.classList[0];
+              mainPageClass = "." + div.classList[0];
               break;
             }
           }
@@ -653,11 +732,11 @@ function productPage(specialCasesIdToApk) {
               matchingDivs.push(div);
             }
           }
-          const priceContainerClass = "."+matchingDivs[matchingDivs.length-2].classList[0];
-          
+          const priceContainerClass = "." + matchingDivs[matchingDivs.length - 2].classList[0];
+
           const priceDivs = document.querySelectorAll(`${priceContainerClass} p`);
 
-          pricePClass = "."+priceDivs[0].classList.value.replace(" ",".");
+          pricePClass = "." + priceDivs[0].classList.value.replace(" ", ".");
 
           documentElem = document.querySelector(mainPageClass);
           docInnerText = documentElem.innerText.split("\n");
@@ -668,20 +747,20 @@ function productPage(specialCasesIdToApk) {
               alcoholPercentageI = i;
             }
           }
-          
-          const volume = parseFloat(docInnerText[alcoholPercentageI-4]);
-          const alcoholPercentage = parseFloat(docInnerText[alcoholPercentageI].replace(",", "."));
-          const price = parseFloat(docInnerText[alcoholPercentageI+6].replace(":", "."));
 
-          const productShortNr = docInnerText[alcoholPercentageI+4].split("\n")[0].replace("Nr ", "");
+          const volume = parseFloat(docInnerText[alcoholPercentageI - 4]);
+          const alcoholPercentage = parseFloat(docInnerText[alcoholPercentageI].replace(",", "."));
+          const price = parseFloat(docInnerText[alcoholPercentageI + 6].replace(":", "."));
+
+          const productShortNr = docInnerText[alcoholPercentageI + 4].split("\n")[0].replace("Nr ", "");
           if (productShortNr in specialCasesIdToApk) {
             const apk = specialCasesIdToApk[productShortNr];
-            document.querySelector(pricePClass).textContent = price + "kr <br> APK:" + apk/100;
+            document.querySelector(pricePClass).textContent = price + "kr <br> APK:" + apk / 100;
             return;
           }
 
           // Parse the extracted information as needed
-          
+
           // Calculate APK using the extracted data
           const apk = parseInt(Math.round(volume * alcoholPercentage / price));
 
@@ -693,7 +772,7 @@ function productPage(specialCasesIdToApk) {
               document.querySelector(pricePClass).textContent = price + "kr, APK:" + apk / 100;
             }
           }
-      
+
         },
         args: [specialCasesIdToApk]
       }).then((result) => {
@@ -735,13 +814,10 @@ chrome.tabs.onUpdated.addListener((details, changeInfo, tab) => {
   }
 });
 
-
-
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message === "sort") {
     // Run the searchPage function when the "Sort" button is clicked
-    //searchPage(1, specialCasesIdToApk);
-    findDivs();
+    searchPage(1, specialCasesIdToApk);
   }
   if (request.message === "loadProductsAgain") {
     searchPage(0, specialCasesIdToApk);
