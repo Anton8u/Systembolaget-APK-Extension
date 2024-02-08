@@ -14,25 +14,30 @@ body {
   /* Add some space between title and button */
 }
 
-/* Style the button */
-#reorderButton {
+/* Style the buttons */
+#reorderButton, #viewMoreResultsButton {
   font-family: 'Regular', "Clarendon-Serial Regular";
   background-color: #FCD205;
   color: #00813C;
   border: none;
   padding: 7px 10px;
-  margin: 0 auto;
-  /* Center horizontally using margin */
+  margin: 0 auto 10px; /* Added margin-bottom for spacing */
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
-  /* Add a smooth transition effect */
   display: block;
-  /* Change to block to center the button */
+  width: 120px; /* Fixed width for both buttons */
+}
+
+/* Hover effect for the buttons */
+#reorderButton:hover, #viewMoreResultsButton:hover {
+  background-color: #00813C;
+  color: #FCD205;
 }
 
 
+
 /* Hover effect for the button */
-#reorderButton:hover {
+#viewMoreResultsButton:hover {
   background-color: #00813C;
   /* Change background color on hover */
   color: #FCD205;

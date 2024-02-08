@@ -618,7 +618,6 @@ function searchPage(reorder, specialCasesIdToApk) {
               newApkDiv.classList.add('apk-div'); // Add a class to identify the APK div
 
               const backgroundColor = getBackgroundColorForAPK(apk);
-              console.log(5);
               // Apply styles to the apkDiv
               newApkDiv.style.cssText = `
                 font-family: __robotoCondensedBold_19bd2c, __robotoCondensedBold_Fallback_19bd2c;
@@ -813,7 +812,7 @@ chrome.tabs.onUpdated.addListener((details, changeInfo, tab) => {
         setTimeout(() => {
           searchPage(0, specialCasesIdToApk);
         }, timeout);
-        timeout *= 2;
+        timeout *= 3;
       }
     }
   }
