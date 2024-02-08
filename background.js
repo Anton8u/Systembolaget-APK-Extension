@@ -556,9 +556,10 @@ function searchPage(reorder, specialCasesIdToApk) {
         target: { tabId: tab.id },
         function: (reorder, specialCasesIdToApk) => {
 
+          console.log("searchPage starts");
           const gridContainer = document.querySelector('div[display="grid"]');
 
-
+          /*
           const elementsToRemove = gridContainer.querySelectorAll('div');
           elementsToRemove.forEach((element) => {
             if (element.textContent.includes("Vad passar till maten")) {
@@ -566,7 +567,7 @@ function searchPage(reorder, specialCasesIdToApk) {
               return;
             }
           });
-
+          */
           const productDivs = Array.from(document.querySelectorAll('a[id^="tile:"]')); //actully links not div
 
           function calcApk(productDiv) {
@@ -585,7 +586,6 @@ function searchPage(reorder, specialCasesIdToApk) {
               const apk = specialCasesIdToApk[productShortNr];
               return apk;
             }
-
             const mlVolume = parseFloat(productDivOuterText[alcoholPercentageI - 2].replace(" ", "").replace("ml", ""));
             const alcoholPercentage = parseFloat(productDivOuterText[alcoholPercentageI].replace(",", "."));
 
@@ -604,12 +604,10 @@ function searchPage(reorder, specialCasesIdToApk) {
           function sortByDefault(a, b) {
             return 0; // No sorting, maintain the original order
           }
-
           // Conditionally select the sorting function based on reorder value
           const sortingFunction = reorder === 1 ? sortByApk : sortByDefault;
 
           productDivs.sort(sortingFunction);
-
           productDivs.forEach((productDiv) => {
             const apk = calcApk(productDiv);
             const apkDiv = productDiv.querySelector('.apk-div');
@@ -621,7 +619,7 @@ function searchPage(reorder, specialCasesIdToApk) {
               newApkDiv.classList.add('apk-div'); // Add a class to identify the APK div
 
               const backgroundColor = getBackgroundColorForAPK(apk);
-
+              console.log(5);
               // Apply styles to the apkDiv
               newApkDiv.style.cssText = `
                 font-family: __robotoCondensedBold_19bd2c, __robotoCondensedBold_Fallback_19bd2c;
@@ -643,7 +641,6 @@ function searchPage(reorder, specialCasesIdToApk) {
               else {
                 insertAfter(newApkDiv, childDivs[0]);
               }
-
             }
 
             // Append the modified productDiv to the gridContainer
@@ -700,6 +697,8 @@ function searchPage(reorder, specialCasesIdToApk) {
             ];
           }
 
+          console.log("searchPage done")
+
           // Resolve the promise when the task is complete
           return Promise.resolve("Divs reordered successfully");
         },
@@ -709,6 +708,7 @@ function searchPage(reorder, specialCasesIdToApk) {
         console.log("Systembolaget-APK-Extension Error");
       });
     }
+    
   });
 }
 
@@ -721,6 +721,7 @@ function productPage(specialCasesIdToApk) {
       chrome.scripting.executeScript({
         target: { tabId: tab.id },
         function: (specialCasesIdToApk) => {
+          console.log("productPage starts")
           const divs = document.querySelectorAll('div[class^="css-"]');
           let mainPageClass;
           for (const div of divs) {
@@ -776,7 +777,7 @@ function productPage(specialCasesIdToApk) {
               document.querySelector(pricePClass).textContent = price + "kr, APK:" + apk / 100;
             }
           }
-
+        console.log("productPage done")
         },
         args: [specialCasesIdToApk]
       }).then((result) => {
@@ -785,6 +786,7 @@ function productPage(specialCasesIdToApk) {
       });
     }
   });
+  
 }
 
 chrome.tabs.onUpdated.addListener((details, changeInfo, tab) => {
