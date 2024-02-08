@@ -1,4 +1,3 @@
-
 const specialCasesIdToApk = {
   '8368': 100,
   '52361': 98,
