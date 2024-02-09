@@ -728,6 +728,12 @@ function productPage(specialCasesIdToApk) {
           const priceContainerClass = "." + matchingDivs[3].classList[0];
 
           // Extracting alcohol percentage, volume, and price
+          let apk;
+          if (productShortNr in specialCasesIdToApk) {
+            apk = specialCasesIdToApk[productShortNr];
+
+          }
+          else {
           const documentElem = document.querySelector(mainPageClass);
           const docInnerText = documentElem.innerText.split("\n");
           let alcoholPercentageI;
@@ -741,14 +747,13 @@ function productPage(specialCasesIdToApk) {
           const price = parseFloat(docInnerText[alcoholPercentageI + 6].replace(":", "."));
 
           // Calculate APK using the extracted data
-          let apk = parseInt(Math.round(volume * alcoholPercentage / price));
-          if (isNaN(apk)) apk = 0; // Handling cases where APK calculation returns NaN
-          
+          apk = parseInt(Math.round(volume * alcoholPercentage / price));
+          if (isNaN(apk)) apk = 1337; // Handling cases where APK calculation returns NaN
+        }
           // Create a new div for APK information
           const apkDiv = document.createElement('div');
           apkDiv.textContent = `APK: ${apk / 100}`;
           apkDiv.classList.add('apk-div'); // Add a class to identify the APK div
-
           function getBackgroundColorForAPK(apk) {
             if (apk > 280 || apk <= 0) {
               return `rgb(200, 200, 200)`;
