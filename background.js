@@ -546,8 +546,7 @@ const specialCasesIdToApk = {
   '11937': 1,
 }
 
-
-function searchPage(reorder, specialCasesIdToApk) {
+function searchPage(reorder, specialCasesIdToApk, ) {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     const tab = tabs[0];
     if (tabs.length > 0) {
@@ -558,15 +557,7 @@ function searchPage(reorder, specialCasesIdToApk) {
           console.log("searchPage starts");
           const gridContainer = document.querySelector('div[display="grid"]');
 
-          /*
-          const elementsToRemove = gridContainer.querySelectorAll('div');
-          elementsToRemove.forEach((element) => {
-            if (element.textContent.includes("Vad passar till maten")) {
-              element.remove();
-              return;
-            }
-          });
-          */
+          
           const productDivs = Array.from(document.querySelectorAll('a[id^="tile:"]')); //actully links not div
 
           function calcApk(productDiv) {
@@ -719,7 +710,7 @@ function productPage(specialCasesIdToApk) {
       chrome.scripting.executeScript({
         target: { tabId: tab.id },
         function: (specialCasesIdToApk) => {
-          console.log("productPage starts")
+          console.log("productPage starts");
           const divs = document.querySelectorAll('div[class^="css-"]');
           let mainPageClass;
           for (const div of divs) {
@@ -728,54 +719,105 @@ function productPage(specialCasesIdToApk) {
               break;
             }
           }
-
           let matchingDivs = [];
           for (const div of divs) {
             if (div.textContent.includes("kr/l")) {
               matchingDivs.push(div);
             }
           }
-          const priceContainerClass = "." + matchingDivs[matchingDivs.length - 2].classList[0];
-
+          const priceContainerClass = "." + matchingDivs[3].classList[0];
           const priceDivs = document.querySelectorAll(`${priceContainerClass} p`);
+          const pricePClass = "." + priceDivs[0].classList.value.replace(" ", ".");
 
-          pricePClass = "." + priceDivs[0].classList.value.replace(" ", ".");
-
-          documentElem = document.querySelector(mainPageClass);
-          docInnerText = documentElem.innerText.split("\n");
-
+          // Extracting alcohol percentage, volume, and price
+          const documentElem = document.querySelector(mainPageClass);
+          const docInnerText = documentElem.innerText.split("\n");
           let alcoholPercentageI;
           for (let i = 0; i < 40; i++) {
             if (docInnerText[i].includes("% vol.")) {
               alcoholPercentageI = i;
             }
           }
-
           const volume = parseFloat(docInnerText[alcoholPercentageI - 4]);
           const alcoholPercentage = parseFloat(docInnerText[alcoholPercentageI].replace(",", "."));
           const price = parseFloat(docInnerText[alcoholPercentageI + 6].replace(":", "."));
 
-          const productShortNr = docInnerText[alcoholPercentageI + 4].split("\n")[0].replace("Nr ", "");
-          if (productShortNr in specialCasesIdToApk) {
-            const apk = specialCasesIdToApk[productShortNr];
-            document.querySelector(pricePClass).textContent = price + "kr <br> APK:" + apk / 100;
-            return;
-          }
-
-          // Parse the extracted information as needed
-
           // Calculate APK using the extracted data
-          const apk = parseInt(Math.round(volume * alcoholPercentage / price));
+          let apk = parseInt(Math.round(volume * alcoholPercentage / price));
+          if (isNaN(apk)) apk = 0; // Handling cases where APK calculation returns NaN
+          
+          // Create a new div for APK information
+          const apkDiv = document.createElement('div');
+          apkDiv.textContent = `APK: ${apk / 100}`;
+          apkDiv.classList.add('apk-div'); // Add a class to identify the APK div
 
-          if (typeof apk === "number" && !isNaN(apk)) {
-            if (apk > 250) {
-              document.querySelector(pricePClass).textContent = price + "kr, APK: error";
+          function getBackgroundColorForAPK(apk) {
+            if (apk > 280 || apk <= 0) {
+              return `rgb(200, 200, 200)`;
             }
-            else {
-              document.querySelector(pricePClass).textContent = price + "kr, APK:" + apk / 100;
-            }
+          
+            // Normalize the APK value to a range between 0 and 1
+            const normalizedAPK = (apk - 0) / (280 - 0);
+          
+            // Interpolate colors from green to yellow to red
+            const green = [0, 128, 0];
+            const yellow = [255, 255, 0];
+            const red = [255, 0, 0];
+          
+            const interpolatedColor = interpolateColor(
+              normalizedAPK,
+              red,
+              yellow,
+              green
+            );
+          
+            return `rgb(${interpolatedColor.join(',')})`;
           }
-        console.log("productPage done")
+          
+          // Function to interpolate color values
+          function interpolateColor(fraction, ...colors) {
+            const numColors = colors.length - 1;
+            const index = fraction * numColors;
+            const startIndex = Math.floor(index);
+            const endIndex = Math.ceil(index);
+            const t = index - startIndex;
+            const startColor = colors[startIndex];
+            const endColor = colors[endIndex];
+          
+            return [
+              startColor[0] + t * (endColor[0] - startColor[0]),
+              startColor[1] + t * (endColor[1] - startColor[1]),
+              startColor[2] + t * (endColor[2] - startColor[2]),
+            ];
+          }
+
+          // Check if the APK div already exists
+          const existingApkDiv = document.querySelector('.apk-div');
+          if (!existingApkDiv) {
+            // Create a new div for APK information
+            const apkDiv = document.createElement('div');
+            apkDiv.textContent = `APK: ${apk / 100}`;
+            apkDiv.classList.add('apk-div'); // Add a class to identify the APK div
+
+            // Apply styles to the apkDiv
+            const backgroundColor = getBackgroundColorForAPK(apk);
+            apkDiv.style.cssText = `
+              font-family: __robotoCondensedBold_19bd2c, __robotoCondensedBold_Fallback_19bd2c;
+              font-size: 16px;
+              margin: 5px;
+              color: rgb(55, 51, 48);
+              background: ${backgroundColor};
+              line-height: 19px;
+              letter-spacing: 0.16em;
+              text-transform: uppercase;
+              align-items: center;
+            `;
+
+            // Add the apkDiv to the price container
+            const priceContainer = document.querySelector(priceContainerClass);
+            priceContainer.appendChild(apkDiv);
+          }
+          console.log("productPage done");
         },
         args: [specialCasesIdToApk]
       }).then((result) => {
@@ -784,8 +826,8 @@ function productPage(specialCasesIdToApk) {
       });
     }
   });
-  
 }
+
 
 chrome.tabs.onUpdated.addListener((details, changeInfo, tab) => {
   if (tab.url && tab.url.startsWith("https://www.systembolaget.se/produkt")) {
