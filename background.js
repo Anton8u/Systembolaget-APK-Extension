@@ -810,7 +810,9 @@ function productPage(specialCasesIdToApk) {
               line-height: 19px;
               letter-spacing: 0.16em;
               text-transform: uppercase;
-              align-items: center;
+              display: flex; 
+              align-items: center; 
+              justify-content: center;
             `;
 
             // Add the apkDiv to the price container
