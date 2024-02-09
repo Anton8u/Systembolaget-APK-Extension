@@ -726,8 +726,6 @@ function productPage(specialCasesIdToApk) {
             }
           }
           const priceContainerClass = "." + matchingDivs[3].classList[0];
-          const priceDivs = document.querySelectorAll(`${priceContainerClass} p`);
-          const pricePClass = "." + priceDivs[0].classList.value.replace(" ", ".");
 
           // Extracting alcohol percentage, volume, and price
           const documentElem = document.querySelector(mainPageClass);
