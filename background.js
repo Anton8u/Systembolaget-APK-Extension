@@ -554,7 +554,6 @@ function searchPage(reorder, specialCasesIdToApk, ) {
         target: { tabId: tab.id },
         function: (reorder, specialCasesIdToApk) => {
 
-          console.log("searchPage starts");
           const gridContainer = document.querySelector('div[display="grid"]');
 
           
@@ -686,8 +685,6 @@ function searchPage(reorder, specialCasesIdToApk, ) {
             ];
           }
 
-          console.log("searchPage done")
-
           // Resolve the promise when the task is complete
           return Promise.resolve("Divs reordered successfully");
         },
@@ -708,7 +705,6 @@ function productPage(specialCasesIdToApk) {
       chrome.scripting.executeScript({
         target: { tabId: tab.id },
         function: (specialCasesIdToApk) => {
-          console.log("productPage starts");
           const divs = document.querySelectorAll('div[class^="css-"]');
           let mainPageClass;
           for (const div of divs) {
@@ -735,7 +731,6 @@ function productPage(specialCasesIdToApk) {
             }
           }
 
-          
           let apk;
           if (productShortNr in specialCasesIdToApk) {
             apk = specialCasesIdToApk[productShortNr];
@@ -752,7 +747,6 @@ function productPage(specialCasesIdToApk) {
           const selectBoxes = documentElem.querySelectorAll('select');
           if (selectBoxes.length > 0) {
             volume = parseInt(selectBoxes[0].textContent.replace(/\s/g, '').match(/\d+/)[0]);
-            console.log(volume)
           }
           else {
             volume = parseFloat(docInnerText[alcoholPercentageI - 4]);
@@ -847,7 +841,6 @@ function productPage(specialCasesIdToApk) {
             apkDiv.textContent = `APK: ERROR`;
           }
           }
-          console.log("productPage done");
         },
         args: [specialCasesIdToApk]
       }).then((result) => {
