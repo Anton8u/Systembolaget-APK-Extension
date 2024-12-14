@@ -1,4 +1,4 @@
-const specialCasesIdToApk = {
+const idToApk = {
   '8368': 100,
   '52361': 98,
   '53122': 98,
@@ -546,13 +546,13 @@ const specialCasesIdToApk = {
   '11937': 1,
 }
 
-function searchPage(reorder, specialCasesIdToApk,) {
+function searchPage(reorder, idToApk,) {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     const tab = tabs[0];
     if (tabs.length > 0) {
       chrome.scripting.executeScript({
         target: { tabId: tab.id },
-        function: (reorder, specialCasesIdToApk) => {
+        function: (reorder, idToApk) => {
 
           const gridContainer = document.querySelector('div[display="grid"]');
 
@@ -571,8 +571,8 @@ function searchPage(reorder, specialCasesIdToApk,) {
 
             const productShortNr = productDivOuterText[alcoholPercentageI - 6].replace("Nr ", "");
 
-            if (productShortNr in specialCasesIdToApk) {
-              const apk = specialCasesIdToApk[productShortNr];
+            if (productShortNr in idToApk) {
+              const apk = idToApk[productShortNr];
               return apk;
             }
             const mlVolume = parseFloat(productDivOuterText[alcoholPercentageI - 2].replace(" ", "").replace("ml", ""));
@@ -688,7 +688,7 @@ function searchPage(reorder, specialCasesIdToApk,) {
           // Resolve the promise when the task is complete
           return Promise.resolve("Divs reordered successfully");
         },
-        args: [reorder, specialCasesIdToApk]
+        args: [reorder, idToApk]
       }).then((result) => {
       }).catch(() => {
         console.log("Systembolaget-APK-Extension Error");
@@ -698,66 +698,67 @@ function searchPage(reorder, specialCasesIdToApk,) {
   });
 }
 
-function productPage(specialCasesIdToApk) {
+function productPage() {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     const tab = tabs[0];
     if (tabs.length > 0) {
       chrome.scripting.executeScript({
         target: { tabId: tab.id },
-        function: (specialCasesIdToApk) => {
-          const divs = document.querySelectorAll('div[class^="css-"]');
-          let mainPageClass;
-          for (const div of divs) {
-            if (div.textContent.includes("HemSortiment")) {
-              mainPageClass = "." + div.classList[0];
-              break;
-            }
+        function: () => {
+          // Check if the APK div already exists before proceeding
+          const existingApkDiv = document.querySelector('.apk-div');
+          if (existingApkDiv) {
+            console.log('APK div already exists. Cancelling function.');
+            return; // Stop further execution if the div already exists
           }
-          let matchingDivs = [];
-          for (const div of divs) {
-            if (div.textContent.includes("kr/l")) {
-              matchingDivs.push(div);
-            }
-          }
-          const priceContainerClass = "." + matchingDivs[3].classList[0];
-
-          const documentElem = document.querySelector(mainPageClass);
-          const docInnerText = documentElem.innerText.split("\n");
-          let productShortNr;
-
-          for (const str of docInnerText) {
-            if (str.startsWith("Nr")) {
-              productShortNr = str.substring(3);
-            }
+          const idToApk = {
+            '3140815': 100,
+            '52361': 98,
+            '53122': 98,
           }
 
-          let apk;
-          if (productShortNr in specialCasesIdToApk) {
-            apk = specialCasesIdToApk[productShortNr];
-          }
-          else {
-            // Extracting alcohol percentage, volume, and price
-            let alcoholPercentageI;
-            for (let i = 0; i < 40; i++) {
-              if (docInnerText[i].includes("% vol.")) {
-                alcoholPercentageI = i;
+          // Helper function to extract product ID using the first method
+          function extractProductIdFromUrl(url) {
+            const urlWithoutLastSlash = url.replace(/\/$/, ''); // Remove last slash if it exists
+            const lastSlashIndex = urlWithoutLastSlash.lastIndexOf('/'); // Find last slash
+            const secondLastSlashIndex = urlWithoutLastSlash.lastIndexOf('/', lastSlashIndex - 1); // Find second-to-last slash
+            if (secondLastSlashIndex !== -1) {
+              const productId = urlWithoutLastSlash.slice(secondLastSlashIndex + 1, lastSlashIndex); // Extract digits between slashes
+              if (/^\d+$/.test(productId)) {
+                return productId;
               }
             }
-            let volume;
-            const selectBoxes = documentElem.querySelectorAll('select');
-            if (selectBoxes.length > 0) {
-              volume = parseInt(selectBoxes[0].textContent.replace(/\s/g, '').match(/\d+/)[0]);
-            }
-            else {
-              volume = parseFloat(docInnerText[alcoholPercentageI - 4]);
-            }
-            const alcoholPercentage = parseFloat(docInnerText[alcoholPercentageI].replace(",", "."));
-            const price = parseFloat(docInnerText[alcoholPercentageI + 6].replace(":", "."));
-
-            // Calculate APK using the extracted data
-            apk = parseInt(Math.round(volume * alcoholPercentage / price));
-            if (isNaN(apk)) apk = 1337; // Handling cases where APK calculation returns NaN
+            return null; // Return null if no valid product ID found
           }
+
+          // Get the current URL
+          const url = window.location.href; // Capture the full URL
+          console.log("Current URL:", url);
+
+          // First method: Try to extract the product ID by removing the last "/"
+          let productId = extractProductIdFromUrl(url);
+
+          // If the first method fails (no valid product ID found), fall back to the second method
+          if (!productId) {
+            const productIdMatch = url.match(/(\d+)\/?$/); // Fallback method: Matches last numbers in the URL
+            if (productIdMatch) {
+              productId = productIdMatch[1];
+              console.log("Extracted Product ID (Fallback):", productId);
+            } else {
+              console.error("No Product ID found using fallback method");
+            }
+          } else {
+            console.log("Extracted Product ID (First Method):", productId);
+          }
+
+          const apk = idToApk[productId];
+
+          if (apk === undefined) {
+            throw new Error(`APK not found for Product ID ${productId}`);
+          }
+
+          console.log(`APK for Product ID ${productId}:`, apk);
+
           function getBackgroundColorForAPK(apk) {
             if (apk > 280 || apk <= 0) {
               return `rgb(200, 200, 200)`;
@@ -798,19 +799,22 @@ function productPage(specialCasesIdToApk) {
             ];
           }
 
-          // Check if the APK div already exists
-          const existingApkDiv = document.querySelector('.apk-div');
-          if (!existingApkDiv) {
-            // Create a new div for APK information
+          // Locate the <main> element and search for divs containing text that ends with "% vol."
+          const mainElement = document.querySelector('main'); // Get the <main> element
+          if (!mainElement) {
+            console.error('Main element not found!');
+            return;
+          }
+
+          const volContainer = Array.from(mainElement.querySelectorAll('div')).find(div =>
+            div.textContent.trim().endsWith(' % vol.')
+          );
+
+          if (volContainer) {
+            // Create the APK div
             const apkDiv = document.createElement('div');
-            if (apk >= 0 && apk < 280) {
-              apkDiv.textContent = `APK: ${apk / 100}`;
-            }
-            else {
-              apkDiv.textContent = `APK: ERROR`;
-            }
-            apkDiv.classList.add('apk-div'); // Add a class to identify the APK div
-            apkDiv.classList.add('apk-div'); // Add a class to identify the APK div
+            apkDiv.textContent = `APK: ${apk / 100}`; // Display the APK value
+            apkDiv.classList.add('apk-div');
 
             // Apply styles to the apkDiv
             const backgroundColor = getBackgroundColorForAPK(apk);
@@ -823,33 +827,27 @@ function productPage(specialCasesIdToApk) {
               line-height: 19px;
               letter-spacing: 0.16em;
               text-transform: uppercase;
-              display: flex; 
+              display: inline-block; 
               align-items: center; 
               justify-content: center;
             `;
 
-            // Add the apkDiv to the price container
-            const priceContainer = document.querySelector(priceContainerClass);
-            priceContainer.appendChild(apkDiv);
-          }
-          else {
-            const apkDiv = document.querySelector('.apk-div');
-            if (apk >= 0 && apk < 280) {
-              apkDiv.textContent = `APK: ${apk / 100}`;
-            }
-            else {
-              apkDiv.textContent = `APK: ERROR`;
-            }
+            // Insert the APK div next to the volContainer
+            volContainer.parentNode.insertBefore(apkDiv, volContainer.nextSibling);
+          } else {
+            console.error('Container with "% vol." not found');
           }
         },
-        args: [specialCasesIdToApk]
-      }).then((result) => {
-      }).catch(() => {
-        console.log("Systembolaget-APK-Extension Error"); // Handle any errors
+      }).catch((error) => {
+        console.log("Systembolaget-APK-Extension Error", error);
       });
     }
   });
 }
+
+
+
+
 
 
 chrome.tabs.onUpdated.addListener((details, changeInfo, tab) => {
@@ -860,7 +858,7 @@ chrome.tabs.onUpdated.addListener((details, changeInfo, tab) => {
       for (let i = 0; i < 5; i++) {
         setTimeout(() => {
           try {
-            productPage(specialCasesIdToApk);
+            productPage(idToApk);
           } catch {
             console.log("Systemet-APK.Extension: Page not loaded yet");
           }
@@ -875,7 +873,7 @@ chrome.tabs.onUpdated.addListener((details, changeInfo, tab) => {
       let timeout = 500;
       for (let i = 0; i < 5; i++) {
         setTimeout(() => {
-          searchPage(0, specialCasesIdToApk);
+          searchPage(0, idToApk);
         }, timeout);
         timeout *= 3;
       }
@@ -886,9 +884,9 @@ chrome.tabs.onUpdated.addListener((details, changeInfo, tab) => {
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message === "sort") {
     // Run the searchPage function when the "Sort" button is clicked
-    searchPage(1, specialCasesIdToApk);
+    searchPage(1, idToApk);
   }
   if (request.message === "loadProductsAgain") {
-    searchPage(0, specialCasesIdToApk);
+    searchPage(0, idToApk);
   }
 });
