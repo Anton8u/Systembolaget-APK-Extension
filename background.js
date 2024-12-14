@@ -546,7 +546,7 @@ const specialCasesIdToApk = {
   '11937': 1,
 }
 
-function searchPage(reorder, specialCasesIdToApk, ) {
+function searchPage(reorder, specialCasesIdToApk,) {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     const tab = tabs[0];
     if (tabs.length > 0) {
@@ -556,7 +556,7 @@ function searchPage(reorder, specialCasesIdToApk, ) {
 
           const gridContainer = document.querySelector('div[display="grid"]');
 
-          
+
           const productDivs = Array.from(document.querySelectorAll('a[id^="tile:"]')); //actully links not div
 
           function calcApk(productDiv) {
@@ -694,7 +694,7 @@ function searchPage(reorder, specialCasesIdToApk, ) {
         console.log("Systembolaget-APK-Extension Error");
       });
     }
-    
+
   });
 }
 
@@ -736,51 +736,51 @@ function productPage(specialCasesIdToApk) {
             apk = specialCasesIdToApk[productShortNr];
           }
           else {
-          // Extracting alcohol percentage, volume, and price
-          let alcoholPercentageI;
-          for (let i = 0; i < 40; i++) {
-            if (docInnerText[i].includes("% vol.")) {
-              alcoholPercentageI = i;
+            // Extracting alcohol percentage, volume, and price
+            let alcoholPercentageI;
+            for (let i = 0; i < 40; i++) {
+              if (docInnerText[i].includes("% vol.")) {
+                alcoholPercentageI = i;
+              }
             }
-          }
-          let volume;
-          const selectBoxes = documentElem.querySelectorAll('select');
-          if (selectBoxes.length > 0) {
-            volume = parseInt(selectBoxes[0].textContent.replace(/\s/g, '').match(/\d+/)[0]);
-          }
-          else {
-            volume = parseFloat(docInnerText[alcoholPercentageI - 4]);
-          }
-          const alcoholPercentage = parseFloat(docInnerText[alcoholPercentageI].replace(",", "."));
-          const price = parseFloat(docInnerText[alcoholPercentageI + 6].replace(":", "."));
+            let volume;
+            const selectBoxes = documentElem.querySelectorAll('select');
+            if (selectBoxes.length > 0) {
+              volume = parseInt(selectBoxes[0].textContent.replace(/\s/g, '').match(/\d+/)[0]);
+            }
+            else {
+              volume = parseFloat(docInnerText[alcoholPercentageI - 4]);
+            }
+            const alcoholPercentage = parseFloat(docInnerText[alcoholPercentageI].replace(",", "."));
+            const price = parseFloat(docInnerText[alcoholPercentageI + 6].replace(":", "."));
 
-          // Calculate APK using the extracted data
-          apk = parseInt(Math.round(volume * alcoholPercentage / price));
-          if (isNaN(apk)) apk = 1337; // Handling cases where APK calculation returns NaN
-        }
+            // Calculate APK using the extracted data
+            apk = parseInt(Math.round(volume * alcoholPercentage / price));
+            if (isNaN(apk)) apk = 1337; // Handling cases where APK calculation returns NaN
+          }
           function getBackgroundColorForAPK(apk) {
             if (apk > 280 || apk <= 0) {
               return `rgb(200, 200, 200)`;
             }
-          
+
             // Normalize the APK value to a range between 0 and 1
             const normalizedAPK = (apk - 0) / (280 - 0);
-          
+
             // Interpolate colors from green to yellow to red
             const green = [0, 128, 0];
             const yellow = [255, 255, 0];
             const red = [255, 0, 0];
-          
+
             const interpolatedColor = interpolateColor(
               normalizedAPK,
               red,
               yellow,
               green
             );
-          
+
             return `rgb(${interpolatedColor.join(',')})`;
           }
-          
+
           // Function to interpolate color values
           function interpolateColor(fraction, ...colors) {
             const numColors = colors.length - 1;
@@ -790,7 +790,7 @@ function productPage(specialCasesIdToApk) {
             const t = index - startIndex;
             const startColor = colors[startIndex];
             const endColor = colors[endIndex];
-          
+
             return [
               startColor[0] + t * (endColor[0] - startColor[0]),
               startColor[1] + t * (endColor[1] - startColor[1]),
@@ -803,13 +803,13 @@ function productPage(specialCasesIdToApk) {
           if (!existingApkDiv) {
             // Create a new div for APK information
             const apkDiv = document.createElement('div');
-          if (apk >= 0 && apk < 280) {
-          apkDiv.textContent = `APK: ${apk / 100}`;
-          }
-          else {
-            apkDiv.textContent = `APK: ERROR`;
-          }
-          apkDiv.classList.add('apk-div'); // Add a class to identify the APK div
+            if (apk >= 0 && apk < 280) {
+              apkDiv.textContent = `APK: ${apk / 100}`;
+            }
+            else {
+              apkDiv.textContent = `APK: ERROR`;
+            }
+            apkDiv.classList.add('apk-div'); // Add a class to identify the APK div
             apkDiv.classList.add('apk-div'); // Add a class to identify the APK div
 
             // Apply styles to the apkDiv
@@ -832,14 +832,14 @@ function productPage(specialCasesIdToApk) {
             const priceContainer = document.querySelector(priceContainerClass);
             priceContainer.appendChild(apkDiv);
           }
-          else{
-          const apkDiv = document.querySelector('.apk-div');
-          if (apk >= 0 && apk < 280) {
-          apkDiv.textContent = `APK: ${apk / 100}`;
-          }
           else {
-            apkDiv.textContent = `APK: ERROR`;
-          }
+            const apkDiv = document.querySelector('.apk-div');
+            if (apk >= 0 && apk < 280) {
+              apkDiv.textContent = `APK: ${apk / 100}`;
+            }
+            else {
+              apkDiv.textContent = `APK: ERROR`;
+            }
           }
         },
         args: [specialCasesIdToApk]
