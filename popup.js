@@ -29,8 +29,8 @@ const text = (userLanguage.startsWith("sv")) ? languageText.SWE : languageText.E
 document.querySelector('.title').textContent = text.title;
 document.querySelector('#reorderButton').textContent = text.button;
 document.getElementById('reorderButton').title = text.buttonTitle; // Button title based on language
-document.querySelector('#viewMoreResultsButton').textContent = text.viewMoreButton;
-document.getElementById('viewMoreResultsButton').title = text.viewMoreButtonTitle; // Button title based on language
+//document.querySelector('#viewMoreResultsButton').textContent = text.viewMoreButton;
+//document.getElementById('viewMoreResultsButton').title = text.viewMoreButtonTitle; // Button title based on language
 document.querySelector('.credit').innerHTML = text.credit + ' <a href="https://github.com/anton8u" style="color: #FCD205;" target="_blank">Anton8u</a>';
 
 chrome.runtime.sendMessage({ message: "loadProductsAgain" });
@@ -40,6 +40,7 @@ document.getElementById('reorderButton').addEventListener('click', () => {
   chrome.runtime.sendMessage({ message: "sort" });
 });
 
+/*
 document.getElementById('viewMoreResultsButton').addEventListener('click', () => {
   // Get the URL of the current tab
   chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
@@ -52,3 +53,4 @@ document.getElementById('viewMoreResultsButton').addEventListener('click', () =>
     chrome.tabs.update(tabs[0].id, { url: newUrl });
   });
 });
+*/
