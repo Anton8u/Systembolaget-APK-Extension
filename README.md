@@ -9,4 +9,4 @@ Man söker efter produkter som vanligt på systembolaget.se, när man har fått 
 
 För att sortera produkterna som visas efter APK, klicka på tilläggets popup i webbläsaren och klicka på "Sortera!".
 
-Om fler produkter laddas med knappen "Visa fler" eller om värdena inte har laddats korrekt, måste popupfönstret öppnas för att uppdatera APK-värdena
+Om värdena inte har laddats korrekt, måste popupfönstret öppnas för att uppdatera APK-värdena

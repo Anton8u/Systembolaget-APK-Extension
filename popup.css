@@ -1,10 +1,25 @@
+@font-face {
+  font-family: 'Montserrat';
+  src: url('images_and_font/Montserrat-Regular.ttf') format('ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('images_and_font/Montserrat-Bold.ttf') format('woff2');
+  font-weight: bold;
+  font-style: normal;
+}
+
 body {
+  font-family: 'Montserrat', sans-serif;
   background-color: #00813C;
   /* Change this to your desired background color */
 }
 
 .title {
-  font-family: 'Regular', "Clarendon-Serial Regular";
+  font-family: 'Montserrat', sans-serif;
   text-align: center;
   font-size: 18px;
   color: #FCD205;
@@ -16,7 +31,7 @@ body {
 
 /* Style the buttons */
 #reorderButton, #viewMoreResultsButton {
-  font-family: 'Regular', "Clarendon-Serial Regular";
+  font-family: 'Montserrat', sans-serif;
   background-color: #FCD205;
   color: #00813C;
   border: none;
@@ -30,6 +45,7 @@ body {
 
 /* Hover effect for the buttons */
 #reorderButton:hover, #viewMoreResultsButton:hover {
+  font-family: 'Montserrat', sans-serif;
   background-color: #00813C;
   color: #FCD205;
 }
@@ -38,6 +54,7 @@ body {
 
 /* Hover effect for the button */
 #viewMoreResultsButton:hover {
+  font-family: 'Montserrat', sans-serif;
   background-color: #00813C;
   /* Change background color on hover */
   color: #FCD205;
@@ -46,6 +63,7 @@ body {
 
 /* Style the credit text */
 .credit {
+  
   text-align: right;
   font-size: 10px;
   padding-top: 3px;

@@ -25689,8 +25689,9 @@ function searchPage(reorder, idToApk) {
               const backgroundColor = getBackgroundColorForAPK(apk);
               // Apply styles to the apkDiv
               newApkDiv.style.cssText = `
-                font-family: __robotoCondensedBold_19bd2c, __robotoCondensedBold_Fallback_19bd2c;
-                font-size: 16px;
+                font-family: 'Montserrat';
+                font-size: 18px;
+                font-weight: bold;
                 margin: 5px;
                 color: rgb(55, 51, 48);
                 background: ${backgroundColor};
@@ -25832,8 +25833,9 @@ function productPage(idToApk) {
             // Apply styles to the apkDiv
             const backgroundColor = getBackgroundColorForAPK(apk);
             apkDiv.style.cssText = `
-              font-family: __robotoCondensedBold_19bd2c, __robotoCondensedBold_Fallback_19bd2c;
+              font-family: 'Montserrat';
               font-size: 16px;
+              font-weight: bold;
               margin: 5px;
               color: rgb(55, 51, 48);
               background: ${backgroundColor};
