@@ -27463,7 +27463,6 @@ function searchPage(reorder, idToApk) {
             }
 
             function getBackgroundColorForAPK(apk) {
-              console.log(apk);
               if (!apk || apk > 280 || apk <= 0) {
                 return `rgb(200, 200, 200)`; // Default color for out-of-range APK values
               }
@@ -27643,7 +27642,6 @@ function productPage(idToApk) {
           function: (idToApk) => {
             // Get the current URL
             const url = window.location.href;
-            console.log("Current URL:", url);
 
             function extractProductIdFromUrl(url) {
               if (url.endsWith("/")) {
@@ -27654,7 +27652,6 @@ function productPage(idToApk) {
             }
 
             function getBackgroundColorForAPK(apk) {
-              console.log(apk);
               if (!apk || apk > 280 || apk <= 0) {
                 return `rgb(200, 200, 200)`; // Default color for out-of-range APK values
               }
