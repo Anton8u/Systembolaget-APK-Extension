@@ -1,5 +1,5 @@
 const idToApk =  {
-  '196115': 6,
+  '2011908': 6,
   '1904915': 5,
   '38202': 3,
   '1195115': 9,
@@ -10,8 +10,8 @@ const idToApk =  {
   '1133812': 149,
   '1054215': 5,
   '197604': 3,
-  '9701201': 91,
-  '38201': 100,
+  '11522': 91,
+  '38201': 200,
   '1137301': 144,
   '1133801': 149,
   '1140903': 92,
@@ -54,7 +54,8 @@ function searchPage(reorder, idToApk) {
           }
           
           function getBackgroundColorForAPK(apk) {
-            if (apk > 280 || apk <= 0) {
+            console.log(apk)
+            if (!apk || (apk > 280 || apk <= 0)) {
               return `rgb(200, 200, 200)`; // Default color for out-of-range APK values
             }
           
@@ -90,6 +91,7 @@ function searchPage(reorder, idToApk) {
 
 
           const productDivs = Array.from(document.querySelectorAll('a[id^="tile:"]')); //actully links not div
+          
 
 
           let productGrid
@@ -104,8 +106,12 @@ function searchPage(reorder, idToApk) {
             const href = productDiv.getAttribute("href")
             const productId = extractProductIdFromUrl(href)
             if (productId) {
-              return idToApk[productId]
+              let idToApk_apk = idToApk[productId]
+              if (idToApk_apk){
+                return idToApk[productId]
+              }
             }
+           
 
             const productDivOuterText = productDiv.innerText.split("\n");
             let alcoholPercentageI;
