@@ -27574,13 +27574,12 @@ function searchPage(reorder, idToApk) {
               if (!apkDiv) {
                 // Create a new div for APK information
                 const newApkDiv = document.createElement("div");
-                newApkDiv.textContent = `APK: ${apk / 100}`;
+                newApkDiv.textContent = `APK: ${apk / 100} ml/kr`;
                 newApkDiv.classList.add("search-apk-div"); // Add a class to identify the APK div
 
                 const backgroundColor = getBackgroundColorForAPK(apk);
                 // Apply styles to the apkDiv
                 newApkDiv.style.cssText = `
-                font-family: 'Montserrat';
                 font-size: 18px;
                 font-weight: bold;
                 margin: 5px;
@@ -27589,6 +27588,7 @@ function searchPage(reorder, idToApk) {
                 line-height: 19px;
                 letter-spacing: 0.16em;
                 text-transform: uppercase;
+                padding: 1px;
               `;
 
                 const firstChildDiv =
@@ -27783,13 +27783,12 @@ function productPage(idToApk) {
             if (volContainer) {
               // Create the APK div
               const apkDiv = document.createElement("div");
-              apkDiv.textContent = `APK: ${apk / 100}`;
+              apkDiv.textContent = `APK: ${apk / 100} ml/kr`;
               apkDiv.classList.add("product-apk-div");
 
               // Apply styles to the apkDiv
               const backgroundColor = getBackgroundColorForAPK(apk);
               apkDiv.style.cssText = `
-              font-family: 'Montserrat';
               font-size: 16px;
               font-weight: bold;
               margin: 5px;
@@ -27801,6 +27800,7 @@ function productPage(idToApk) {
               display: inline-block; 
               align-items: center; 
               justify-content: center;
+              padding: 1px;
             `;
 
               // Insert the APK div next to the volContainer
