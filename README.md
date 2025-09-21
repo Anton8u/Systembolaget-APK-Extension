@@ -2,6 +2,7 @@
 
 Ett tillägg till chromium baserade webbläsare (Chrome, Edge, m.m.) som visar APK (ml alkohol / kr) på Systembolagets webbplats och kan sortera produkterna baserat på det. 
 
+Chrome Web Store: https://chromewebstore.google.com/detail/gpphiolpmlfocafaibnjjioimlkbcbnf?utm_source=item-share-cb
 
 ## Användning:
 
