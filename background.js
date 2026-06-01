@@ -83,7 +83,7 @@ function searchPage(reorder) {
               }
 
               const mlVolume = parseFloat(
-                productDivOuterText[alcoholPercentageI - 2]
+                productDivOuterText[alcoholPercentageI - 1]
                   .replace(" ", "")
                   .replace("ml", "")
               );
@@ -92,7 +92,7 @@ function searchPage(reorder) {
               );
 
               const price = parseFloat(
-                productDivOuterText[alcoholPercentageI + 2]
+                productDivOuterText[alcoholPercentageI + 1]
                   .replace(":", ".")
                   .replace(" ", "")
               );
