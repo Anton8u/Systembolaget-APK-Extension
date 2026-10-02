@@ -1,19 +1,27 @@
 {
   "manifest_version": 3,
   "name": "Systembolaget APK-Extension",
-  "version": "2.6",
+  "version": "3.0",
   "description": "Displays APK on Systembolaget's website and can sort products based on it.",
-  "permissions": ["scripting"], 
-  "background": {
-    "service_worker": "background.js"
-  },
+  "permissions": ["storage"],
 
-  "host_permissions": [
-    "https://www.systembolaget.se/sortiment*"
+  "content_scripts": [
+    {
+      "matches": ["https://www.systembolaget.se/*"],
+      "js": [
+        "src/settings.js",
+        "src/apk.js",
+        "src/search.js",
+        "src/product.js",
+        "src/content.js"
+      ],
+      "css": ["src/content.css"],
+      "run_at": "document_idle"
+    }
   ],
 
   "action": {
-    "default_popup": "popup.html",
+    "default_popup": "popup/popup.html",
     "default_icon": {
       "16": "images_and_font/icon16.png",
       "48": "images_and_font/icon48.png",
