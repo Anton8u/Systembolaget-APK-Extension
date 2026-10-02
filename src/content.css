@@ -1,3 +1,74 @@
+/* The card uses the same font as the popup. The extension id is filled in by Chrome. */
+@font-face {
+  font-family: "SBAPK Montserrat";
+  src: url("chrome-extension://__MSG_@@extension_id__/images_and_font/Montserrat-Regular.ttf") format("truetype");
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "SBAPK Montserrat";
+  src: url("chrome-extension://__MSG_@@extension_id__/images_and_font/Montserrat-Bold.ttf") format("truetype");
+  font-weight: bold;
+}
+
+/* Sort card: a product-tile-sized box in the popup's colours. */
+.sbapk-card {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+}
+
+.sbapk-card__box {
+  flex: 1;
+  box-sizing: border-box;
+  min-height: 180px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #00813c;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  font-family: "SBAPK Montserrat", sans-serif;
+}
+
+.sbapk-card__title {
+  margin: 0 0 10px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: normal;
+  letter-spacing: normal;
+  text-transform: none;
+  color: #fcd205;
+}
+
+.sbapk-card__button {
+  width: 120px;
+  margin: 0;
+  padding: 7px 10px;
+  border: none;
+  outline: 1px solid transparent;
+  background: #fcd205;
+  color: #00813c;
+  font-family: "SBAPK Montserrat", sans-serif;
+  font-size: 13.333px;
+  font-weight: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-transform: none;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.sbapk-card__button:hover,
+.sbapk-card__button[aria-pressed="true"] {
+  background: #00813c;
+  color: #fcd205;
+  outline-color: #fcd205;
+}
+
 .sbapk-badge {
   margin: 5px;
   padding: 1px;
@@ -8,13 +79,14 @@
   text-transform: uppercase;
 }
 
-.sbapk-badge--tile {
-  font-size: 18px;
-}
-
 .sbapk-badge--product {
   font-size: 16px;
   width: fit-content;
+}
+
+/* Product tiles get a pale tint of their badge colour (the colour is set per tile from search.js). */
+[data-slot="product-tile"][data-sbapk-tint] {
+  background-color: var(--sbapk-tint);
 }
 
 /* Non-product items in the product grid (e.g. inspiration banners). */

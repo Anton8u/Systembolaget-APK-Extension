@@ -36,6 +36,7 @@ function openPopup(storage, language = "sv-SE") {
   const { window } = dom;
   Object.defineProperty(window.navigator, "language", { value: language });
   window.chrome = { storage };
+  window.eval(read("src", "texts.js"));
   window.eval(read("src", "settings.js"));
   window.eval(read("popup", "popup.js"));
   return window;
@@ -47,8 +48,9 @@ function openSearchPage(storage) {
     runScripts: "outside-only",
   });
   const { window } = dom;
+  Object.defineProperty(window.navigator, "language", { value: "sv-SE" });
   window.chrome = { storage };
-  for (const file of ["settings.js", "apk.js", "search.js", "product.js", "content.js"]) {
+  for (const file of ["settings.js", "texts.js", "apk.js", "search.js", "product.js", "card.js", "content.js"]) {
     window.eval(read("src", file));
   }
   return window;
@@ -126,5 +128,53 @@ test("a page opened while sorting is enabled starts sorted", async () => {
   await sleep(300);
   const orders = [...page.document.querySelectorAll('[data-slot="product-tile"]')].map((tile) => tile.closest("li").style.order);
   assert.deepEqual(orders, ["1", "3", "4", "2"]);
+  page.close();
+});
+
+test("card: one green card first in the grid, with the toggle", async () => {
+  const page = openSearchPage(fakeStorage());
+  await sleep(300);
+
+  const grid = page.document.querySelector("main ul");
+  const cards = grid.querySelectorAll("[data-sbapk-card]");
+  assert.equal(cards.length, 1);
+  assert.equal(grid.firstElementChild, cards[0]);
+  assert.equal(cards[0].querySelector("button").textContent, "Sortera!");
+  assert.equal(cards[0].querySelector(".sbapk-card__title").textContent, "APK till Systembolaget");
+  assert.equal(cards[0].hasAttribute("data-sbapk-hidden"), false);
+  page.close();
+});
+
+test("card: clicking it sorts the page and updates the card and the popup", async () => {
+  const storage = fakeStorage();
+  const page = openSearchPage(storage);
+  const popup = openPopup(storage);
+  await sleep(300);
+
+  const cardButton = () => page.document.querySelector("[data-sbapk-card] button");
+  const orders = () =>
+    [...page.document.querySelectorAll('[data-slot="product-tile"]')].map((tile) => tile.closest("li").style.order);
+
+  cardButton().click();
+  await sleep(300);
+  assert.deepEqual(orders(), ["1", "3", "4", "2"]);
+  assert.equal(cardButton().textContent, "Sorterar ✓");
+  assert.equal(page.document.querySelectorAll("[data-sbapk-card]").length, 1);
+  assert.equal(popup.document.getElementById("sortButton").textContent, "Sorterar ✓");
+
+  cardButton().click();
+  await sleep(300);
+  assert.deepEqual(orders(), ["", "", "", ""]);
+  assert.equal(cardButton().textContent, "Sortera!");
+  page.close();
+  popup.close();
+});
+
+test("card: comes back after the site re-renders the grid", async () => {
+  const page = openSearchPage(fakeStorage());
+  await sleep(300);
+  page.document.querySelector("[data-sbapk-card]").remove();
+  await sleep(300);
+  assert.equal(page.document.querySelectorAll("[data-sbapk-card]").length, 1);
   page.close();
 });

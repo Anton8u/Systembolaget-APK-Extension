@@ -10,13 +10,25 @@
       "matches": ["https://www.systembolaget.se/*"],
       "js": [
         "src/settings.js",
+        "src/texts.js",
         "src/apk.js",
         "src/search.js",
         "src/product.js",
+        "src/card.js",
         "src/content.js"
       ],
       "css": ["src/content.css"],
       "run_at": "document_idle"
+    }
+  ],
+
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "images_and_font/Montserrat-Regular.ttf",
+        "images_and_font/Montserrat-Bold.ttf"
+      ],
+      "matches": ["https://www.systembolaget.se/*"]
     }
   ],
 

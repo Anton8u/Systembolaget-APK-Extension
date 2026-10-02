@@ -21,9 +21,12 @@
   const BADGE_CLASS = "sbapk-badge sbapk-badge--product";
   const BADGE_SELECTOR = ".sbapk-badge--product";
   const TILE_SELECTOR = '[data-slot="product-tile"]';
+  // The real row is about 40 characters; anything much bigger is not that row.
+  const MAX_ROW_TEXT_LENGTH = 200;
 
   const ALCOHOL_TEXT = /^\d+(?:[.,]\d+)?\s*%\s*vol\.?$/i;
-  const VOLUME_TEXT = /^\d[\d\s]*ml$/i;
+  // "3 000 ml", or "Burk · 330 ml" when the product has a package-type selector.
+  const VOLUME_TEXT = /(?:^|·\s*)\d[\d\s]*ml$/i;
 
   /** First element without child elements whose trimmed text passes `matches`. */
   function findLeaf(main, matches) {
@@ -43,14 +46,33 @@
     return null;
   }
 
-  function update(doc) {
-    const main = doc.querySelector("main");
-    if (!main) return;
+  /**
+   * The row holding "Box · 3 000 ml · 13 % vol." plus the product number: the
+   * badge goes right below it. Returns null unless the page clearly looks like
+   * a complete product header, so that a half-rendered page, or values that
+   * come from unrelated sections, never puts a badge somewhere strange (like
+   * below the whole page).
+   */
+  function findAnchorRow(main, alcoholEl, volumeEl, priceEl) {
+    const details = commonAncestor(alcoholEl, volumeEl);
+    const row = details?.parentElement;
+    if (!details || !row) return null;
+    if (row === main || !main.contains(row)) return null;
+    // Volume and alcohol share one small row; the price lives in its own row.
+    if (details.contains(priceEl) || row.contains(priceEl)) return null;
+    if (row.textContent.length > MAX_ROW_TEXT_LENGTH) return null;
+    return row;
+  }
 
-    const alcoholEl = findLeaf(main, (text) => ALCOHOL_TEXT.test(text));
-    const volumeEl = findLeaf(main, (text) => VOLUME_TEXT.test(text));
-    const priceEl = findLeaf(main, (text) => apk.parsePrice(text) !== null);
-    const existing = main.querySelector(BADGE_SELECTOR);
+  function update(doc) {
+    // All badges of ours, wherever they ended up, so none can pile up unseen.
+    const [existing, ...duplicates] = doc.querySelectorAll(BADGE_SELECTOR);
+    duplicates.forEach((badge) => badge.remove());
+
+    const main = doc.querySelector("main");
+    const alcoholEl = main && findLeaf(main, (text) => ALCOHOL_TEXT.test(text));
+    const volumeEl = main && findLeaf(main, (text) => VOLUME_TEXT.test(text));
+    const priceEl = main && findLeaf(main, (text) => apk.parsePrice(text) !== null);
 
     const value =
       alcoholEl && volumeEl && priceEl
@@ -60,10 +82,7 @@
             priceKr: apk.parsePrice(priceEl.textContent.trim()),
           })
         : null;
-
-    // The row holding "Box · 3 000 ml · 13 % vol." plus the product number sits
-    // one level above the element that contains both volume and alcohol.
-    const row = value !== null ? commonAncestor(alcoholEl, volumeEl)?.parentElement : null;
+    const row = value !== null ? findAnchorRow(main, alcoholEl, volumeEl, priceEl) : null;
 
     if (value === null || !row) {
       if (existing) existing.remove();

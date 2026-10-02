@@ -24,7 +24,12 @@
     [255, 255, 0],
     [0, 128, 0], // best
   ];
+  // Moves every colour this fraction of the whole scale towards green (0.075 = 7.5 %),
+  // so "bad" products are an orange-red rather than pure red.
+  const COLOR_SHIFT_TOWARDS_GREEN = 0.075;
   const NO_DATA_COLOR = "rgb(200, 200, 200)";
+  // How much of the badge colour a tinted tile gets: 0 = plain white, 1 = the full badge colour.
+  const TINT_STRENGTH = 0.18;
 
   // `\s` also covers the (narrow) no-break spaces used as thousand separators.
   function toInt(digitsWithSpaces) {
@@ -81,17 +86,39 @@
     return `APK: ${apk.toFixed(2)} ml/kr`;
   }
 
-  /** Red -> yellow -> green background for a badge. Grey when there is no APK. */
-  function colorForApk(apk) {
-    if (!Number.isFinite(apk) || apk <= 0) return NO_DATA_COLOR;
-    const position = Math.min(apk / APK_FOR_BEST_COLOR, 1) * (COLOR_STOPS.length - 1);
+  /** 1.5666 -> "APK 1.57" (short form, for the search tiles) */
+  function formatApkShort(apk) {
+    return `APK ${apk.toFixed(2)}`;
+  }
+
+  /** [r, g, b] on the red -> yellow -> green scale, or null when there is no APK. */
+  function channelsForApk(apk) {
+    if (!Number.isFinite(apk) || apk <= 0) return null;
+    const scale = Math.min(apk / APK_FOR_BEST_COLOR + COLOR_SHIFT_TOWARDS_GREEN, 1);
+    const position = scale * (COLOR_STOPS.length - 1);
     const lower = Math.floor(position);
     const upper = Math.ceil(position);
     const fraction = position - lower;
-    const channels = COLOR_STOPS[lower].map((from, i) =>
+    return COLOR_STOPS[lower].map((from, i) =>
       Math.round(from + fraction * (COLOR_STOPS[upper][i] - from))
     );
-    return `rgb(${channels.join(", ")})`;
+  }
+
+  /** Red -> yellow -> green background for a badge. Grey when there is no APK. */
+  function colorForApk(apk) {
+    const channels = channelsForApk(apk);
+    return channels ? `rgb(${channels.join(", ")})` : NO_DATA_COLOR;
+  }
+
+  /**
+   * The badge colour mixed with white, for tinting a whole tile. `null` when
+   * there is no APK (the tile is then left alone).
+   */
+  function tintForApk(apk, strength = TINT_STRENGTH) {
+    const channels = channelsForApk(apk);
+    if (!channels) return null;
+    const mixed = channels.map((channel) => Math.round(255 - (255 - channel) * strength));
+    return `rgb(${mixed.join(", ")})`;
   }
 
   return {
@@ -101,6 +128,8 @@
     parseMetadata,
     computeApk,
     formatApk,
+    formatApkShort,
     colorForApk,
+    tintForApk,
   };
 });
